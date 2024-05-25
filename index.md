@@ -6,13 +6,13 @@ description: "This is the homepage of my personal site."
 
 # Welcome to My Personal Site
 
+![Profile Picture](image/cat.jpg) <!-- Ìí¼ÓÍ¼Æ¬ -->
+
 Hello! I'm [Rogers], a [Computational Science student in SYSU].
-
-
 
 ## About Me
 
-I am passionate about [your passions or interests]. I enjoy working on [related projects or work] and always strive to learn new things and improve my skills.
+I am passionate about learning new things and currently studying math and computer science. What 's more, I am also a music lover who really enjoy RnB, Rock and Soul music. 
 
 Here are some of the things I do:
 
@@ -41,4 +41,3 @@ I also write about [topics you write about]. You can check out my latest posts b
 You can reach me at [luohj29@mail2.sysu.edu.cn].
 
 [LinkedIn](your_linkedin_url) | [GitHub](your_github_url) | [Twitter](your_twitter_url)
-
