@@ -8,7 +8,7 @@ description: "This is the homepage of my personal site."
 
 Hello! I'm [Rogers], a [Computational Science student in SYSU].
 
-![Profile Picture](path_to_your_profile_picture.jpg)
+
 
 ## About Me
 
@@ -38,7 +38,7 @@ I also write about [topics you write about]. You can check out my latest posts b
 
 ## Contact
 
-You can reach me at [your email address] or follow me on [social media platform].
+You can reach me at [luohj29@mail2.sysu.edu.cn].
 
 [LinkedIn](your_linkedin_url) | [GitHub](your_github_url) | [Twitter](your_twitter_url)
 
