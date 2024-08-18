@@ -25,7 +25,6 @@ role: Junior student
 # Organizations/Affiliations to display in Biography blox
 institution:
   - name: Sun Yat-Sen University
-    url: https://openai.com/
 
 # Social network links
 # Need to use another icon? Simply download the SVG icon to your `assets/media/icons/` folder.
