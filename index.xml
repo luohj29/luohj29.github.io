@@ -1,10 +1,55 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>HOME on Rogers Luo</title><link>https://luohj29.github.io/</link><description>Recent content in HOME on Rogers Luo</description><generator>Hugo</generator><language>en-us</language><copyright>? Rogers Luo</copyright><lastBuildDate>Fri, 03 May 2019 09:37:55 +0200</lastBuildDate><atom:link href="https://luohj29.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Getting started</title><link>https://luohj29.github.io/post/getting-started/</link><pubDate>Fri, 03 May 2019 09:37:55 +0200</pubDate><guid>https://luohj29.github.io/post/getting-started/</guid><description>&lt;p>Here are some details to help you getting started with this theme.&lt;/p></description></item><item><title>Portfolio Definition</title><link>https://luohj29.github.io/post/portfolio-definition/</link><pubDate>Thu, 02 May 2019 19:49:05 +0200</pubDate><guid>https://luohj29.github.io/post/portfolio-definition/</guid><description>&lt;p>Here are some details about the portfolio settings.&lt;/p>
-&lt;figure>&lt;img src="https://luohj29.github.io/post/images/portfolio-example.png"
- alt="Example of Portfolio page">&lt;figcaption>
- &lt;p>Example of Portfolio page&lt;/p>
- &lt;/figcaption>
-&lt;/figure></description></item><item><title>Sample project</title><link>https://luohj29.github.io/portfolio/sample-project/</link><pubDate>Thu, 02 May 2019 19:47:09 +0200</pubDate><guid>https://luohj29.github.io/portfolio/sample-project/</guid><description>This would be a description of your sample project. You can add any content you&amp;rsquo;d like.
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</description></item><item><title>Archetypes management</title><link>https://luohj29.github.io/post/archetypes/</link><pubDate>Thu, 02 May 2019 19:25:30 +0200</pubDate><guid>https://luohj29.github.io/post/archetypes/</guid><description>&lt;p>The archetypes are defined in the &lt;code>archetypes&lt;/code> folder, for both post and portfolio.&lt;/p></description></item><item><title>Shortcodes</title><link>https://luohj29.github.io/post/shortcodes/</link><pubDate>Mon, 29 Apr 2019 19:12:12 +0100</pubDate><guid>https://luohj29.github.io/post/shortcodes/</guid><description>&lt;p>Introduction of the shortcodes defined in the personal-web theme.&lt;/p></description></item><item><title>Config File</title><link>https://luohj29.github.io/post/config-file/</link><pubDate>Sat, 20 Apr 2019 19:12:12 +0100</pubDate><guid>https://luohj29.github.io/post/config-file/</guid><description>&lt;p>Here is the basic config file used for personal-web.&lt;/p>
-&lt;p>You can use it as a base for your website.&lt;/p></description></item><item><title>Pages</title><link>https://luohj29.github.io/post/pages/</link><pubDate>Sat, 20 Apr 2019 19:12:12 +0100</pubDate><guid>https://luohj29.github.io/post/pages/</guid><description>&lt;p>Variables you can use in pages&lt;/p></description></item><item><title>Open Graph image</title><link>https://luohj29.github.io/post/define-specific-og-image/</link><pubDate>Sat, 20 Apr 2019 11:14:59 +0200</pubDate><guid>https://luohj29.github.io/post/define-specific-og-image/</guid><description>Within any page, you can add in the FrontMatter a images array that will be used to define a specific Open Graph image.
-For example, see content/_index.md page:
-images: [&amp;#34;/images/sample.jpg&amp;#34;]</description></item></channel></rss>
+<?xml-stylesheet href="/rss.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>HOME on A Hugo Site</title><link>http://example.org/</link><description>Recent content in HOME on A Hugo Site</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>This is a customized copyright.</copyright><lastBuildDate>Wed, 25 Sep 2024 00:00:00 +0000</lastBuildDate><atom:link href="http://example.org/index.xml" rel="self" type="application/rss+xml"/><item><title>并行加速比理论</title><link>http://example.org/post/sys1_paralleltheory/</link><pubDate>Wed, 25 Sep 2024 00:00:00 +0000</pubDate><guid>http://example.org/post/sys1_paralleltheory/</guid><description>A Hugo Site http://example.org/post/sys1_paralleltheory/ -&lt;p>并行计算机体系结构的并行加速比理论&lt;/p>
+&lt;h3 id="并行加速理论">&lt;strong>并行加速理论&lt;/strong>&lt;/h3>
+&lt;p>&lt;strong>并行加速比&lt;/strong>&lt;/p>
+&lt;h3 id="并行加速理论-1">&lt;strong>并行加速理论&lt;/strong>&lt;/h3>
+&lt;p>并行加速比&lt;/p>
+&lt;p>​ 本来是速度比，但是在任务量一定的情况下，就可以直接使用时间的比值来表示，&lt;/p>
+&lt;p>S表示加速比，T表示并行之前的时间，Tp表示并行加速之后所用的时间，p表示Parallel
+$$
+S = \frac{T}{T_p}
+$$
+阿姆达尔加速比&lt;/p>
+&lt;p>​ 阿姆达尔加速比关注任务中有些任务是必须要串行的，不可以被并行化减少时间，而有的任务可以并行化。&lt;/p>
+&lt;p>设必须串行处理的比例是f, Wf是串行的工作量
+$$
+f = \frac{W_f}{W}
+$$
+那S就受限与f而被表示为, 其中p是多核并行的个数，
+$$
+S= \frac{fW+(1-f)W}{fw+\frac{(1-f)W}{p}}= \frac{p}{pf+1-f}=\frac{1}{f+\frac{1-f}{p}}
+$$
+​ 当p趋于无穷，加速比收敛于1/f，仍然是有限的&lt;/p>
+&lt;p>古斯塔森定律&lt;/p>
+&lt;p>​ 之前人们受限与阿姆达尔加速比，因为加速比有上限，但是阿姆达尔加速比面向的是任务量一定的讨论，现实中很显然地，增加核心数量，同一时间能处理的工作量显然是更多的。所以后来古斯塔森从这个角度出发，用同一时间处理的工作量来定义了加速比
+$$
+S=\frac{s+n*p}{s+n}
+$$
+​ 其中s表示串行的工作量，n是可并行的工作量&lt;/p>
+&lt;p>​ 在该定律基础上可以说人们的思想被解放，许多大型并行化加速的超级计算机开始投入开发和生产。&lt;/p>
+&lt;p>Sunni定律&lt;/p>
+&lt;p>​ 孙贤和，倪明选定义的sunni定律，关注物理实现对并行效率的影响，也就是增大问题规模，读取存储的开销会增大，设G(p)为增加到p个核心，并行工作负载的增加，仍然使用同一时间的工作量来定义
+$$
+S=\frac{fW+(1-f)G(p)W}{fw+(1-f)G(p)W/p}=\frac{f+(1-f)G(p)}{f+(1-f)G(p)/p}
+$$
+​ 当G(p)=1,也就是增加核心没有增加问题规模（工作负载），那这就是阿姆达尔定律&lt;/p>
+&lt;p>​ 当G(p)=p, 也就是增加核心带来的问题规模的扩大是正比的，这个定律就是古斯塔森定律。&lt;/p>
+&lt;p>​ 当G(p)&amp;gt;p,也就是增加核心带来的问题规模更多（加速计算超过并行损耗的开销），这个加速比会更高。&lt;/p>
+&lt;p>可扩展性评测标准&lt;/p>
+&lt;p>​ 并行计算的可扩放性(Scalability)即计算系统性能随处理器增加提高的能力(可看作加速比的变化率)。目前没有公认的评判标准，下面列举一些常见的标准。&lt;/p>
+&lt;p>等效率度量标准&lt;/p>
+&lt;p>​
+$$
+E=S/P=\frac{1}{1+\frac{T_o}{T_e}}
+$$
+其中T 0 , T e 分别为额外开销和计算开销。&lt;/p>
+&lt;p>如果增加处理器数目，额外一定会增大(通讯开销)，因此为了维持效率不变需要&lt;strong>适当增加&lt;/strong>计算负载&lt;/p>
+&lt;p>稳定性：&lt;/p>
+&lt;p>​ HPC长时间的最高浮点运算性能和峰值运算的比值,受限与功耗，缓存一致性等等。&lt;/p>
+&lt;p>基准评测&lt;/p>- http://example.org/post/sys1_paralleltheory/ - This is a customized copyright.</description></item><item><title>Sample project</title><link>http://example.org/portfolio/sample-project/</link><pubDate>Thu, 02 May 2019 19:47:09 +0200</pubDate><guid>http://example.org/portfolio/sample-project/</guid><description>A Hugo Site http://example.org/portfolio/sample-project/ -&lt;p>This would be a description of your sample project. You can add any content you&amp;rsquo;d like.&lt;/p>
+&lt;p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&lt;/p>
+- http://example.org/portfolio/sample-project/ - This is a customized copyright.</description></item></channel></rss>
