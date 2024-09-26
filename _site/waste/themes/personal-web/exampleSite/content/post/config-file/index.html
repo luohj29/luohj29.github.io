@@ -1,0 +1,191 @@
+<p>Here is the basic config file used for personal-web.</p>
+
+<p>You can use it as a base for your website.</p>
+
+<!--more-->
+
+<pre><code class="language-TOML">baseURL = "https://example.com/"
+languageCode = "en-us"
+title = "Edna West"
+theme = "personal-web"
+copyright="© Edna West"
+googleAnalytics = ""
+enableEmoji=true
+enableRobotsTXT=true
+pygmentsUseClasses=true
+pygmentsCodeFences=true
+
+[params.intro]
+  main = "Hi, I'm Edna :wave:"
+  sub = "I'm a Web Developer and Entrepreneur"
+
+[params.main]
+  latestPublishHeader = "My Latest Project"
+
+[taxonomies]
+  design = "designs"
+  tech = "techs"
+
+[blackfriday]
+  hrefTargetBlank = true
+
+[params]
+  breadcrumb = true
+  accentColor = "#FD3519"
+  mainSections = ['portfolio']
+  rendererSafe = true # set to true if the renderer is not marked unsafe
+
+[params.notFound]
+  gopher = "/images/gopher.png"
+  h1 = 'Bummer!'
+  p = "It seems that this page doesn't exist."
+
+[params.sections]
+  post = "article"
+  portfolio = "project"
+
+[params.sidebar]
+  backgroundImage = ''
+  gradientOverlay = ''
+  logo = ""
+
+[params.assets]
+  favicon = ""
+  customCSS = ""
+
+[params.social]
+  github = "https://github.com/"
+  twitter = "https://twitter.com/"
+  linkedin = "https://www.linkedin.com/in/"
+  medium = "https://medium.com/"
+  codepen = "https://codepen.io/"
+  facebook = "https://www.facebook.com/"
+  youtube = "https://www.youtube.com/"
+  instagram = "https://www.instagram.com/"
+  gitlab = "https://gitlab.com/"
+  keybase = "https://keybase.io/"
+
+[params.contact]
+  email = ""
+  text= ""
+
+
+[menu]
+
+[[menu.main]]
+  identifier = "about"
+  name = "About"
+  title = "About section"
+  url = "/about/"
+  weight = -120
+
+[[menu.main]]
+  identifier = "portfolio"
+  name = "Portfolio"
+  title = "Portfolio"
+  url = "/portfolio/"
+  weight = -110
+
+[[menu.main]]
+  identifier = "blog"
+  name = "Post"
+  title = "Blog section"
+  url = "/post/"
+  weight = -100
+
+[sitemap]
+  changefreq = "monthly"
+  filename = "sitemap.xml"
+  priority = 0.5
+
+[privacy]
+  [privacy.googleAnalytics]
+    anonymizeIP = true
+    disable = true
+    respectDoNotTrack = true
+    useSessionStorage = false
+  [privacy.twitter]
+    disable = false
+    enableDNT = true
+    simple = false
+
+</code></pre>
+
+<h2 id="sidebar">Sidebar</h2>
+
+<p>The sidebar header is defined within the <code class="language-plaintext highlighter-rouge">params.intro</code> section. The <code class="language-plaintext highlighter-rouge">main</code> being the top header and <code class="language-plaintext highlighter-rouge">sub</code> the subheader</p>
+
+<pre><code class="language-TOML">[params.intro]
+  main = "Hi, I'm Edna :wave:"
+  sub = "I'm a Web Developer and Entrepreneur"
+</code></pre>
+
+<p>You can also customize the params with the  <code class="language-plaintext highlighter-rouge">params.sidebar</code> parameters. The <code class="language-plaintext highlighter-rouge">config.toml</code> file contains the default values as examples.</p>
+<pre><code class="language-TOML">[params.sidebar]
+  backgroundImage = ''
+  gradientOverlay = ''
+  logo = ''
+</code></pre>
+
+<h2 id="404">404</h2>
+
+<p>The 404 page is defined within the <code class="language-plaintext highlighter-rouge">params.notFound</code> section.
+The <code class="language-plaintext highlighter-rouge">gopher</code>, <code class="language-plaintext highlighter-rouge">h1</code> and <code class="language-plaintext highlighter-rouge">p</code> params define the image and texts displayed on the page.</p>
+
+<p>In the <code class="language-plaintext highlighter-rouge">[params]</code> section, the <code class="language-plaintext highlighter-rouge">mainSections</code> params possible values are ‘portfolio’ or ‘post’: it defines the section highlighted on the page.</p>
+
+<p>NB: to see the 404 page from your development env, check <code class="language-plaintext highlighter-rouge">/404.html</code>.</p>
+
+<pre><code class="language-TOML">[params.notFound]
+  gopher = "/images/gopher.png"
+  h1 = 'Bummer!'
+  p = "It seems that this page doesn't exist."
+
+[params]
+  mainSections = ['portfolio']
+</code></pre>
+
+<p>You can also define how the post and portfolio sections will be named on the 404 page, thanks to the <code class="language-plaintext highlighter-rouge">params.sections</code> params.</p>
+
+<pre><code class="language-TOML">[params.sections]
+  post = "article"
+  portfolio = "project"
+</code></pre>
+
+<h2 id="customization">Customization</h2>
+
+<p>You can define a custom CSS file in the <code class="language-plaintext highlighter-rouge">customCSS</code> param and a favicon.</p>
+<pre><code class="language-TOML">[params.assets]
+  favicon = ""
+  customCSS = ""
+</code></pre>
+
+<h2 id="social">Social</h2>
+
+<p>You can define your social media usernames in the <code class="language-plaintext highlighter-rouge">params.social</code> and the <code class="language-plaintext highlighter-rouge">params.contact</code> paramaters.</p>
+
+<p>In this last section, the email expects your email address and the text is what will be displayed on the sidebar, right below the last item of the menu. If blank, nothing is displayed.</p>
+
+<pre><code class="language-TOML">[params.social]
+  github = "https://github.com/"
+  twitter = "https://twitter.com/"
+  linkedin = "https://www.linkedin.com/in/"
+  medium = "https://medium.com/"
+  codepen = "https://codepen.io/"
+  facebook = "https://www.facebook.com/"
+  youtube = "https://www.youtube.com/"
+  instagram = "https://www.instagram.com/"
+  gitlab = "https://gitlab.com/"
+  keybase = "https://keybase.io/"
+
+[params.contact]
+  email = ""
+  text= ""
+</code></pre>
+
+<h2 id="latest-publication">Latest Publication</h2>
+<p>You can define the name of the latest publication header on the home page with the param <code class="language-plaintext highlighter-rouge">latestPublishHeader</code>.</p>
+
+<pre><code class="language-TOML">[params.main]
+  latestPublishHeader = "My Latest Project"
+</code></pre>

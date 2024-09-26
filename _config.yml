@@ -1,14 +1,16 @@
+kramdown:
+  math_engine: null
 # Site settings
-title: 炸毛的秘密基地
-SEOTitle: CHEN Yuhan (陈禹翰)
-email_1: y.chen@connect.hkust-gz.edu.cn
-email_2: cortexcyh@gmail.com
-description: "炸毛的秘密基地  | 计算机科学、高性能计算、机器学习系统、奇奇怪怪的想法和平淡的生活"
-keyword: "炸毛, Yh, 炸毛的秘密基地, CHEN Yuhan, 陈禹翰"
-url: "https://lzzmm.github.io" # your host, for absolute URL
+title: RogersLuo's Blog
+SEOTitle: RogersLuo
+email_1: luohj29@mail2.sysu.edu.cn
+email_2: 3133974071@qq.com
+description: "Rogers | learning in cs and math"
+keyword: "Rogers, luohj29, blog, cs, math, sysu,ML,Photography"
+url: "https://luohj29.github.io" # your host, for absolute URL
 baseurl: "" # for example, '/blog' if your blog hosted on 'host/blog'
 
-github_repo: "https://github.com/lzzmm/lzzmm.github.io" # your code repository
+github_repo: "https://luohj29.github.io" # your code repository
 
 header-img: img/index-bg.jpg # img/home-bg-star_track.jpg
 header-img-morning: img/index-bg.jpg # img/index-bg-morning.jpg
@@ -25,8 +27,8 @@ future: true
 RSS: false # TODO: enable RSS
 # weibo_username:     CleverYh    # 查看自己主页网址，可以在设置里自定义网址
 # zhihu_username:  cyhhh-81
-github_username: lzzmm
-google_scholar_username: JKM0lC8AAAAJ
+github_username: luohj29
+# google_scholar_username: JKM0lC8AAAAJ
 # jike_username: D5560B5D-7448-4E1A-B43A-EC2D2C9AB7EC
 # jike_yellow: owo
 # bilibili_username: 81640939
@@ -88,9 +90,9 @@ kramdown:
 # Netease settings
 netease_comment: false
 
-# Gitalk
+Gitalk:
 gitalk:
-  enable: true #是否开启Gitalk评论
+  enable: false #是否开启Gitalk评论
   clientID: 7fffbe4c3b1dd09438df #生成的clientID # c13966f40c081a08bd16 
   clientSecret: 31af50fecf6080208cea63ddb5a889340ae1259e #生成的clientSecret # 8dd91b525b0224e0b6415d5199cafb73f6f19589
   repo: lzzmm.github.io #仓库名称
@@ -109,7 +111,7 @@ gitalk:
 # Sidebar settings
 sidebar: true # whether or not using Sidebar.
 sidebar-about-description: "Stay Energetic"
-sidebar-avatar: /img/lzzmm.jpg # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar: /img/Rogers.png # use absolute URL, seeing it's used in both `/` and `/about/`
 
 # Featured Tags
 featured-tags: true # whether or not using Feature-Tags
@@ -123,12 +125,12 @@ service-worker: true
 page-mathjax: true
 
 # Friends
-friends:
-  [
-    { title: "HH", href: "https://whaohan.github.io" },
-    { title: "KiritoShaw", href: "https://kiritoshaw.github.io/" },
-    { title: "花降", href: "http://flowerfall.top/" },
-    # { title: "重阳", href: "https://axunx3.github.io/" },
-    { title: "济总", href: "https://www.cnblogs.com/axiao918/" },
-    { title: "Pseudoyu", href: "https://www.pseudoyu.com"}
-  ]
+# friends:
+#   [
+#     { title: "HH", href: "https://whaohan.github.io" },
+#     { title: "KiritoShaw", href: "https://kiritoshaw.github.io/" },
+#     { title: "花降", href: "http://flowerfall.top/" },
+#     # { title: "重阳", href: "https://axunx3.github.io/" },
+#     { title: "济总", href: "https://www.cnblogs.com/axiao918/" },
+#     { title: "Pseudoyu", href: "https://www.pseudoyu.com"}
+#   ]

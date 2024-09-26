@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>RogersLuo&apos;s Blog</title>
+    <description>Rogers | learning in cs and math</description>
+    <link>http://localhost:4000/</link>
+    <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Thu, 26 Sep 2024 23:30:04 +0800</pubDate>
+    <lastBuildDate>Thu, 26 Sep 2024 23:30:04 +0800</lastBuildDate>
+    <generator>Jekyll v4.3.4</generator>
+    
+      <item>
+        <title>并行加速比</title>
+        <description>&lt;h1 id=&quot;并行加速理论&quot;&gt;&lt;strong&gt;并行加速理论&lt;/strong&gt;&lt;/h1&gt;
+
+&lt;p&gt;并行加速比&lt;/p&gt;
+
+&lt;p&gt;​	本来是速度比，但是在任务量一定的情况下，就可以直接使用时间的比值来表示，&lt;/p&gt;
+
+&lt;p&gt;S表示加速比，T表示并行之前的时间，Tp表示并行加速之后所用的时间，p表示Parallel
+\(S = \frac{T}{T_p}\)&lt;/p&gt;
+&lt;h2 id=&quot;阿姆达尔加速比&quot;&gt;&lt;strong&gt;阿姆达尔加速比&lt;/strong&gt;&lt;/h2&gt;
+
+&lt;p&gt;​	阿姆达尔加速比关注任务中有些任务是必须要串行的，不可以被并行化减少时间，而有的任务可以并行化。&lt;/p&gt;
+
+&lt;p&gt;设必须串行处理的比例是f, Wf是串行的工作量
+\(f = \frac{W_f}{W}\)
+那S就受限与f而被表示为, 其中p是多核并行的个数，
+\(S= \frac{fW+(1-f)W}{fw+\frac{(1-f)W}{p}}= \frac{p}{pf+1-f}=\frac{1}{f+\frac{1-f}{p}}\)
+​	当p趋于无穷，加速比收敛于1/f，仍然是有限的&lt;/p&gt;
+
+&lt;h2 id=&quot;古斯塔森定律&quot;&gt;&lt;strong&gt;古斯塔森定律&lt;/strong&gt;&lt;/h2&gt;
+
+&lt;p&gt;​	之前人们受限与阿姆达尔加速比，因为加速比有上限，但是阿姆达尔加速比面向的是任务量一定的讨论，现实中很显然地，增加核心数量，同一时间能处理的工作量显然是更多的。所以后来古斯塔森从这个角度出发，用同一时间处理的工作量来定义了加速比
+\(S=\frac{s+n*p}{s+n}\)
+​	其中s表示串行的工作量，n是可并行的工作量&lt;/p&gt;
+
+&lt;p&gt;​	在该定律基础上可以说人们的思想被解放，许多大型并行化加速的超级计算机开始投入开发和生产。&lt;/p&gt;
+
+&lt;h2 id=&quot;sunni定律&quot;&gt;&lt;strong&gt;Sunni定律&lt;/strong&gt;&lt;/h2&gt;
+
+&lt;p&gt;​	孙贤和，倪明选定义的sunni定律，关注物理实现对并行效率的影响，也就是增大问题规模，读取存储的开销会增大，设G(p)为增加到p个核心，并行工作负载的增加，仍然使用同一时间的工作量来定义
+\(S=\frac{fW+(1-f)G(p)W}{fw+(1-f)G(p)W/p}=\frac{f+(1-f)G(p)}{f+(1-f)G(p)/p}\)
+​	当G(p)=1,也就是增加核心没有增加问题规模（工作负载），那这就是阿姆达尔定律&lt;/p&gt;
+
+&lt;p&gt;​	当G(p)=p, 也就是增加核心带来的问题规模的扩大是正比的，这个定律就是古斯塔森定律。&lt;/p&gt;
+
+&lt;p&gt;​	当G(p)&amp;gt;p,也就是增加核心带来的问题规模更多（加速计算超过并行损耗的开销），这个加速比会更高。&lt;/p&gt;
+
+&lt;h2 id=&quot;可扩展性评测标准&quot;&gt;&lt;strong&gt;可扩展性评测标准&lt;/strong&gt;&lt;/h2&gt;
+
+&lt;p&gt;​	并行计算的可扩放性(Scalability)即计算系统性能随处理器增加提高的能力(可看作加速比的变化率)。目前没有公认的评判标准，下面列举一些常见的标准。&lt;/p&gt;
+
+&lt;h2 id=&quot;等效率度量标准&quot;&gt;&lt;strong&gt;等效率度量标准&lt;/strong&gt;&lt;/h2&gt;
+
+&lt;p&gt;​	
+\(E=S/P=\frac{1}{1+\frac{T_o}{T_e}}\)
+其中T 0 , T e  分别为额外开销和计算开销。&lt;/p&gt;
+
+&lt;p&gt;如果增加处理器数目，额外一定会增大(通讯开销)，因此为了维持效率不变需要&lt;strong&gt;适当增加&lt;/strong&gt;计算负载&lt;/p&gt;
+
+&lt;h2 id=&quot;稳定性&quot;&gt;&lt;strong&gt;稳定性：&lt;/strong&gt;&lt;/h2&gt;
+
+&lt;p&gt;​	HPC长时间的最高浮点运算性能和峰值运算的比值,受限与功耗，缓存一致性等等。&lt;/p&gt;
+
+&lt;p&gt;基准评测&lt;/p&gt;
+</description>
+        <pubDate>Wed, 25 Sep 2024 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/jekyll/update/2024/09/25/HPC/</link>
+        <guid isPermaLink="true">http://localhost:4000/jekyll/update/2024/09/25/HPC/</guid>
+        
+        <category>HPC</category>
+        
+        
+        <category>jekyll</category>
+        
+        <category>update</category>
+        
+      </item>
+    
+      <item>
+        <title>数学物理方程热传导方程</title>
+        <description>&lt;p&gt;第二章&lt;/p&gt;
+
+&lt;p&gt;前置知识：傅里叶定律， 热量守恒定律&lt;/p&gt;
+
+&lt;p&gt;热传导方程
+\(dQ=-k(x,y,z)\frac{\partial{u}}{\partial{n}}dSdt\)&lt;/p&gt;
+
+&lt;p&gt;在曲面S包围的$\Omega$区域内部由于热传导而流失的热量为
+\(Q=\int_{t_2}^{t1}\iint\limits_{S}k(x,y,z)\frac{\partial{u}}{\partial{n}}dsdt\)&lt;/p&gt;
+
+&lt;p&gt;由$\frac{\partial{u}}{\partial{n}}ds$在x,y,z方向的分量为
+\((\frac{\partial{u}}{\partial{x}}i+\frac{\partial{u}}{\partial{y}}j+\frac{\partial{u}}{\partial{z}}k)ds=\frac{\partial{u}}{\partial{x}}dydz +\frac{\partial{u}}{\partial{y}}dxdz+\frac{\partial{u}}{\partial{z}}dxdy\)
+由于高斯公式：
+\(\int\int\limits_{S}\nabla\cdot{F}dS=\int\int\int\limits_{V}\nabla\cdot{F}dxdydz\)
+那
+\(\frac{\partial{u}}{\partial{n}}ds=\nabla{u}\cdot{ds}\)
+\(\int_{t_2}^{t1}\iint\limits_{S}k(x,y,z)\frac{\partial{u}}{\partial{n}}dSdt=\int_{t_2}^{t1}\int\int\limits_{V}\nabla\cdot(k\nabla{u})dxdydz\)&lt;/p&gt;
+
+&lt;p&gt;从物体热量变换的角度看，由比热容$C$和温度$T$组成的物体，其热量变化为
+\(\int\int\int Cp\int_{t_1}^{t_2}\frac{\partial{u}}{\partial{t}}dxdydz\)
+根据热量守恒得到：&lt;/p&gt;
+
+&lt;p&gt;\(\int\int\int Cp\int_{t_1}^{t_2}\frac{\partial{u}}{\partial{t}}dxdydz=-\int_{t_2}^{t1}\int_{S}k(x,y,z)\frac{\partial{u}}{\partial{n}}dSdt\)
+变量分离法&lt;/p&gt;
+</description>
+        <pubDate>Wed, 25 Sep 2024 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/jekyll/update/2024/09/25/PDE/</link>
+        <guid isPermaLink="true">http://localhost:4000/jekyll/update/2024/09/25/PDE/</guid>
+        
+        
+        <category>jekyll</category>
+        
+        <category>update</category>
+        
+      </item>
+    
+  </channel>
+</rss>
