@@ -1,0 +1,134 @@
+# Site settings
+title: 炸毛的秘密基地
+SEOTitle: CHEN Yuhan (陈禹翰)
+email_1: y.chen@connect.hkust-gz.edu.cn
+email_2: cortexcyh@gmail.com
+description: "炸毛的秘密基地  | 计算机科学、高性能计算、机器学习系统、奇奇怪怪的想法和平淡的生活"
+keyword: "炸毛, Yh, 炸毛的秘密基地, CHEN Yuhan, 陈禹翰"
+url: "https://lzzmm.github.io" # your host, for absolute URL
+baseurl: "" # for example, '/blog' if your blog hosted on 'host/blog'
+
+github_repo: "https://github.com/lzzmm/lzzmm.github.io" # your code repository
+
+header-img: img/index-bg.jpg # img/home-bg-star_track.jpg
+header-img-morning: img/index-bg.jpg # img/index-bg-morning.jpg
+header-img-night: img/index-bg-night.jpg
+header-img-quarter-moon: img/home-bg-star_track.jpg # img/index-bg-quarter-moon.jpg
+header-img-full-moon: img/home-bg-star_track.jpg # img/index-bg-full-moon.jpg
+# header-img-credit: CHEN Yuhan
+# header-img-year: 2019
+
+# Publish posts or collection documents with a future date.
+future: true
+
+# SNS settings
+RSS: false # TODO: enable RSS
+# weibo_username:     CleverYh    # 查看自己主页网址，可以在设置里自定义网址
+# zhihu_username:  cyhhh-81
+github_username: lzzmm
+google_scholar_username: JKM0lC8AAAAJ
+# jike_username: D5560B5D-7448-4E1A-B43A-EC2D2C9AB7EC
+# jike_yellow: owo
+# bilibili_username: 81640939
+#twitter_username:
+#facebook_username:
+#linkedin_username:             # firstname-lastname-idxxxx
+
+# Gray
+grayscale: false
+
+#bg-animation
+bg-animate: false
+
+# live 2d
+live2d: false
+
+# Build settings
+# from 2016, 'pygments' is unsupported on GitHub Pages. Use 'rouge' for highlighting instead.
+highlighter: rouge
+permalink: pretty
+paginate: 10
+paginate_path: "/blog/page:num/"
+exclude:
+  [
+    "less",
+    "node_modules",
+    "Gruntfile.js",
+    "package.json",
+    "README.md",
+    "README.zh.md",
+  ]
+anchorjs: true # if you want to customize anchor. check out line:181 of `post.html`
+# If you have timezone issue (e.g. #68) in China, uncomment to use this:
+#timezone: CN
+
+# Gems
+# from PR#40, to support local preview for Jekyll 3.0
+# make sure you have this gem installed
+# `$ gem install jekyll-paginate`
+plugins: [jekyll-paginate]
+
+# Markdown settings
+# replace redcarpet to kramdown,
+# although redcarpet can auto highlight code, the lack of header-id make the catalog impossible, so I switch to kramdown
+# document: http://jekyllrb.com/docs/configuration/#kramdown
+markdown: kramdown
+kramdown:
+  input: GFM # use Github Flavored Markdown !important
+  syntax_highlighter_opts:
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true
+      start_line: 0
+
+# Disqus settings
+# disqus_username:
+
+# Netease settings
+netease_comment: false
+
+# Gitalk
+gitalk:
+  enable: true #是否开启Gitalk评论
+  clientID: 7fffbe4c3b1dd09438df #生成的clientID # c13966f40c081a08bd16 
+  clientSecret: 31af50fecf6080208cea63ddb5a889340ae1259e #生成的clientSecret # 8dd91b525b0224e0b6415d5199cafb73f6f19589
+  repo: lzzmm.github.io #仓库名称
+  owner: lzzmm #GitHub用户名
+  admin: lzzmm
+  distractionFreeMode: true #是否启用类似FB的阴影遮罩
+
+# Analytics settings
+# Baidu Analytics
+# ba_track_id: 5d750e7f8adc5c65a8813e68e650c924
+
+# Google Analytics
+# ga_track_id: "UA-158666159-1" # Format: UA-xxxxxx-xx
+# ga_domain: auto
+
+# Sidebar settings
+sidebar: true # whether or not using Sidebar.
+sidebar-about-description: "Stay Energetic"
+sidebar-avatar: /img/lzzmm.jpg # use absolute URL, seeing it's used in both `/` and `/about/`
+
+# Featured Tags
+featured-tags: true # whether or not using Feature-Tags
+featured-condition-size: 3 # A tag will be featured if the size of it is more than this condition value
+
+# Progressive Web Apps
+chrome-tab-theme-color: "#000000"
+service-worker: true
+
+# MathJax rendering for layout:page (e.g. post preview)
+page-mathjax: true
+
+# Friends
+friends:
+  [
+    { title: "HH", href: "https://whaohan.github.io" },
+    { title: "KiritoShaw", href: "https://kiritoshaw.github.io/" },
+    { title: "花降", href: "http://flowerfall.top/" },
+    # { title: "重阳", href: "https://axunx3.github.io/" },
+    { title: "济总", href: "https://www.cnblogs.com/axiao918/" },
+    { title: "Pseudoyu", href: "https://www.pseudoyu.com"}
+  ]

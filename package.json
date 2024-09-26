@@ -1,0 +1,37 @@
+{
+    "name": "Yh-blog",
+    "title": "Yh Blog",
+    "author": "Yh <cleveryh@qq.com>",
+    "version": "1.8.2",
+    "homepage": "https://lzzmm.github.io/",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/lzzmm/lzzmm.github.io"
+    },
+    "bugs": "https://github.com/lzzmm/lzzmm.github.io/issues",
+    "devDependencies": {
+        "grunt": ">=1.5.3",
+        "grunt-contrib-less": ">=0.11.4",
+        "grunt-contrib-watch": ">=0.6.1",
+        "grunt-banner": ">=0.2.3",
+        "grunt-contrib-uglify": ">= 0.5.1",
+        "js-yaml": ">=3.13.1",
+        "qs": ">=6.9.7",
+        "request": ">=2.68.0",
+        "debug": ">=2.6.9",
+        "lodash": ">=4.17.21",
+        "cryptiles": ">=4.1.2",
+        "minimatch": ">=3.0.5",
+        "tunnel-agent": ">=0.6.0",
+        "underscore.string": ">=3.3.5",
+        "clean-css": ">=4.1.11",
+        "hawk": ">=9.0.1",
+        "mime": ">=1.4.1"
+    },
+    "scripts": {
+        "start": "jekyll serve -w -l --host 0.0.0.0 --port 4000",
+        "dev": "grunt watch & npm run start",
+        "boil": "git push boilerplate boilerplate:master",
+        "push": "git push origin master --tag"
+    }
+}
