@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Rogers | learning in cs and math">
+    <meta name="keywords" content="Rogers, luohj29, blog, cs, math, sysu,ML,Photography">
+    <meta name="theme-color" content="#000000">
+
+    <!-- Open Graph -->
+    
+    <meta property="og:title"
+                content="数学物理方程热传导方程 - RogersLuo">
+    
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="第二章
+">
+    
+    <meta property="article:published_time" content=" 2024-09-25T00:00:00Z">
+    
+    
+    
+    <meta property="article:tag" content="PDE">
+    
+    
+    <meta property="og:image" content="http://localhost:4000/img/Rogers.png">
+    <meta property="og:url" content="http://localhost:4000/2024-09-25-PDE/">
+    <meta property="og:site_name" content="RogersLuo">
+
+    <title>数学物理方程热传导方程 - RogersLuo</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="http://localhost:4000/2024-09-25-PDE/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href=" /css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href=" /css/hux-blog.min.css">
+
+    
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"
+        type="text/css">
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+
+    <!-- diffBackground -->
+    <script type="text/javascript">
+        function diffBackground() {
+            datetoday = new Date();
+            timenow = datetoday.getTime();
+            datetoday.setTime(timenow);
+            thehour = datetoday.getHours();
+            if (thehour >= 15 && thehour < 18)
+                display = "img/index-bg.jpg";
+            else if (thehour >= 18 && thehour < 21)
+                display = "img/index-bg-night.jpg";
+            else if (thehour >= 21 && thehour < 24)
+                display = "img/home-bg-star_track.jpg";
+            else if (thehour >= 0 && thehour < 3)
+                display = "img/home-bg-star_track.jpg";
+            else if (thehour >= 3 && thehour < 6)
+                display = "img/index-bg-night.jpg";
+            else if (thehour >= 6 && thehour < 12)
+                display = "img/index-bg.jpg";
+            else if (thehour >= 12 && thehour < 15)
+                display = "img/index-bg.jpg";
+            else
+                display = "img/index-bg.jpg";
+
+            var css = '<style type="text/css">';
+            css += 'header.intro-header{background-image: url(\'/' + display + '\');}';
+            css += '</style>';
+            document.write(css);
+        }
+    </script>
+
+</head>
+
+<!-- hack iOS CSS :active style -->
+
+<body ontouchstart="">
+
+    <!-- Navigation -->
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/blog">RogersLuo's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    <li>
+                        <a href="/blog">Blog</a>
+                    </li>
+                    <li>
+                        <a href="/archive">Archive</a>
+                    </li>
+                    <!-- 
+                    
+                    
+                    
+                    
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    
+                    
+                    <li>
+                        <a href="/archive/">Archive</a>
+                    </li>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                     -->
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/index-bg.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+
+
+
+
+
+    
+    <style type="text/css">
+        header.intro-header{
+            position: relative;
+            background-image: url('/img/index-bg.jpg');
+            background: ;
+            background-blend-mode: multiply;
+        }
+
+        
+    </style>
+    
+    
+        
+    <header class="intro-header" >
+        
+    
+    <div class="header-mask"></div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/archive/?tag=PDE" title="PDE">PDE</a>
+                        
+                    </div>
+                    <h1 >数学物理方程热传导方程</h1>
+                    
+                    <h2 class="subheading" ></h2>
+                    <span class="meta">Posted by RogersLuo's Blog on September 25, 2024</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+
+
+<!-- Post Content -->
+<article>
+    
+        <div class="container">
+            
+            <div class="row">
+
+                <!-- Post Container -->
+                <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                    <!-- Multi-Lingual -->
+                    
+
+                    <p>第二章</p>
+
+<p>前置知识：傅里叶定律， 热量守恒定律</p>
+
+<p>热传导方程
+\(dQ=-k(x,y,z)\frac{\partial{u}}{\partial{n}}dSdt\)</p>
+
+<p>在曲面S包围的$\Omega$区域内部由于热传导而流失的热量为
+\(Q=\int_{t_2}^{t1}\iint\limits_{S}k(x,y,z)\frac{\partial{u}}{\partial{n}}dsdt\)</p>
+
+<p>由$\frac{\partial{u}}{\partial{n}}ds$在x,y,z方向的分量为
+\((\frac{\partial{u}}{\partial{x}}i+\frac{\partial{u}}{\partial{y}}j+\frac{\partial{u}}{\partial{z}}k)ds=\frac{\partial{u}}{\partial{x}}dydz +\frac{\partial{u}}{\partial{y}}dxdz+\frac{\partial{u}}{\partial{z}}dxdy\)
+由于高斯公式：
+\(\int\int\limits_{S}\nabla\cdot{F}dS=\int\int\int\limits_{V}\nabla\cdot{F}dxdydz\)
+那
+\(\frac{\partial{u}}{\partial{n}}ds=\nabla{u}\cdot{ds}\)
+\(\int_{t_2}^{t1}\iint\limits_{S}k(x,y,z)\frac{\partial{u}}{\partial{n}}dSdt=\int_{t_2}^{t1}\int\int\limits_{V}\nabla\cdot(k\nabla{u})dxdydz\)</p>
+
+<p>从物体热量变换的角度看，由比热容$C$和温度$T$组成的物体，其热量变化为
+\(\int\int\int Cp\int_{t_1}^{t_2}\frac{\partial{u}}{\partial{t}}dxdydz\)
+根据热量守恒得到：</p>
+
+<p>\(\int\int\int Cp\int_{t_1}^{t_2}\frac{\partial{u}}{\partial{t}}dxdydz=-\int_{t_2}^{t1}\int_{S}k(x,y,z)\frac{\partial{u}}{\partial{n}}dSdt\)
+变量分离法</p>
+
+
+                    
+                    <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img
+                            alt="Creative Commons License"
+                            style="border-width:0;max-width: 40%;margin-left: 0px;margin-bottom: 5px;"
+                            src="/img/icons/cc_byncnd.flat.guokr.svg" /></a><text style="font-size: 14px">本作品采用<a
+                            rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎
+                            4.0
+                            国际许可协议</a>进行许可。<br />This work is licensed under a <a rel="license"
+                            href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons
+                            Attribution-NonCommercial-NoDerivatives 4.0 International License</a>.</text><br />
+                    
+
+                    <hr style="visibility: hidden;">
+                    <ul class="pager">
+                        
+                        <li class="previous">
+                            <a href="/2024-06-21-OS-lab8/"
+                                data-toggle="tooltip" data-placement="top" title="OS lab8 从内核态到用户态">
+                                Previous<br>
+                                <span>OS lab8 从内核态到用户态</span>
+                            </a>
+                        </li>
+                        
+                        
+                        <li class="next">
+                            <a href="/2024-09-25-HPC/"
+                                data-toggle="tooltip" data-placement="top" title="并行加速比">
+                                Next<br>
+                                <span>并行加速比</span>
+                            </a>
+                        </li>
+                        
+                    </ul>
+                    <hr style="visibility: hidden;">
+
+                    <!--Gitalk评论start  -->
+                    
+                    <!-- Gitalk end -->
+
+                    
+
+                    
+                </div>
+
+                <!-- Side Catalog Container -->
+                
+
+                <!-- Sidebar Container -->
+                <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+                    <!-- DONE: FRIEND has a link to the last tag -->
+
+                    <!-- Featured Tags -->
+                    
+
+
+<section>
+    
+        <hr class="hidden-sm hidden-xs">
+    
+    <h5><a href="/archive/">FEATURED TAGS</a></h5>
+    <div class="tags">
+        
+        
+        
+        
+        
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=OS"
+                    title="OS"
+                    rel="7">OS</a>
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=HPC"
+                    title="HPC"
+                    rel="7">HPC</a>
+    </div>
+</section>
+
+
+                    <!-- Friends Blog -->
+                    
+                </div>
+            </div>
+        </div>
+</article>
+
+<!-- add support for mathjax by voleking-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    TeX: {
+      equationNumbers: {
+        autoNumber: "AMS"
+      }
+    },
+    SVG: {
+      scale: 90
+    },
+    tex2jax: {
+      inlineMath: [ ['$','$'] ],
+      displayMath: [ ['$$','$$'], ['\\[','\\]'], ['\\(','\\)'] ],
+      processEscapes: true,
+    }
+  });
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG">
+</script>
+
+
+<!-- CleverYh -->
+
+<!-- End CleverYh -->
+
+
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+        var d = document, t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js", function () {
+        anchors.options = {
+            visible: 'hover',
+            placement: 'right',
+            // icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link {
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top: -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- SNS Link -->
+                
+
+
+<ul class="list-inline text-center">
+    
+
+        
+        
+        
+        
+        <li>
+            <a target="_blank" title="Github" href="https://github.com/luohj29">
+                <!-- <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                </span> -->
+                <span class="fa-stack fa-lg">
+                    <i class="fa-brands fa-github-alt fa-stack-1x"></i>
+                </span>
+            </a>
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        
+    </ul>
+
+                <p class="copyright text-muted">
+                    <text style="opacity: 1; color: #007799;">&copy; 2019 - 2025 <a
+                            href="https://luohj29.github.io/">RogersLuo's Blog</a>
+                    </text><br>
+                    <span style="opacity: 0.78; color: #007799;font-family: 'CamingoCodeRegular';">
+                        <!-- Default Statcounter code for lzzmm
+                    https://lzzmm.github.io -->
+                        <script type="text/javascript">
+                            var sc_project = 12680417;
+                            var sc_invisible = 0;
+                            var sc_security = "74b5722d";
+                            var sc_text = 2;
+                            var scJsHost = "https://";
+                            document.write("<script type='text/javascript' src='" +
+                                scJsHost +
+                                "statcounter.com/counter/counter.js'></" + "script>");
+                        </script>
+                        <!-- <noscript>
+                        <div class="statcounter"><a title="Web Analytics" href="https://statcounter.com/" target="_blank"><img
+                                    class="statcounter" src="https://c.statcounter.com/12680417/0/74b5722d/0/" alt="Web Analytics"
+                                    referrerPolicy="no-referrer-when-downgrade"></a></div>
+                        </noscript> -->
+                        <!-- End of Statcounter Code -->
+                        <span> visits | </span>
+                        <span>Uptime:</span><span id="display_live_time"></span>
+                        <script>function blog_live_time() {
+                                window.setTimeout(blog_live_time, 1000);
+                                const start = new Date('2020-02-16T14:37:00');
+                                const now = new Date();
+                                const timeDiff = (now.getTime() - start.getTime());
+                                const msPerMinute = 60 * 1000;
+                                const msPerHour = 60 * msPerMinute;
+                                const msPerDay = 24 * msPerHour;
+                                const passDay = Math.floor(timeDiff / msPerDay);
+                                const passHour = Math.floor((timeDiff % msPerDay) / 60 / 60 / 1000);
+                                const passMinute = Math.floor((timeDiff % msPerHour) / 60 / 1000);
+                                const passSecond = Math.floor((timeDiff % msPerMinute) / 1000);
+                                display_live_time.innerHTML = " " + passDay + "d " + passHour + "h " + passMinute + "m " + passSecond + "s ";
+                            }
+                            blog_live_time();
+                        </script>
+                    </span><br>
+                    <text style="opacity: 0.66; color: #0099bb;">Powered by <a
+                            href="https://github.com/luohj29/luohj29.github.io"
+                            target="_blank">luohj29.github.io</a> |
+                        <iframe style="margin-left: 2px; margin-right: -20px; margin-bottom:-5px; opacity: 0.55;"
+                            frameborder="0" scrolling="0" width="100px" height="20px"
+                            src="https://ghbtns.com/github-btn.html?user=luohj29&repo=luohj29.github.io&type=star&count=true">
+                        </iframe></text><br>
+                    <text style="opacity: 0.6; font-size: 13px;">Improved from the theme by <a
+                            href="http://huangxuan.me/" target="_blank">Hux Blog</a></text>
+                    <!-- </text> -->
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src=" /js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<!-- Currently, only navbar scroll-down effect at desktop still depends on this -->
+<script src=" /js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src=" /js/hux-blog.min.js "></script>
+
+<!-- Service Worker -->
+
+<script src=" /js/snackbar.js "></script>
+<script src=" /js/sw-registration.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+        var d = document, t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+
+
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function () {
+        var $nav = document.querySelector("nav");
+        if ($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+<!-- Side Catalog -->
+
+
+
+<!-- Multi-Lingual -->
+
+
+
+    <!-- Image to hack wechat -->
+    <img src="/img/icon_wechat.png" width="0" height="0" />
+    <!-- Migrate from head to bottom, no longer block render and still work -->
+</body>
+
+</html>

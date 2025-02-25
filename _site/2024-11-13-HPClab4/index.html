@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Rogers | learning in cs and math">
+    <meta name="keywords" content="Rogers, luohj29, blog, cs, math, sysu,ML,Photography">
+    <meta name="theme-color" content="#000000">
+
+    <!-- Open Graph -->
+    
+    <meta property="og:title"
+                content="HPC lab4 一个传热问题的并行计算 - RogersLuo">
+    
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="中山大学计算机院本科生实验报告
+">
+    
+    <meta property="article:published_time" content=" 2024-11-13T00:00:00Z">
+    
+    
+    
+    <meta property="article:tag" content="HPC">
+    
+    
+    <meta property="og:image" content="http://localhost:4000/img/Rogers.png">
+    <meta property="og:url" content="http://localhost:4000/2024-11-13-HPClab4/">
+    <meta property="og:site_name" content="RogersLuo">
+
+    <title>HPC lab4 一个传热问题的并行计算 - RogersLuo</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="http://localhost:4000/2024-11-13-HPClab4/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href=" /css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href=" /css/hux-blog.min.css">
+
+    
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"
+        type="text/css">
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+
+    <!-- diffBackground -->
+    <script type="text/javascript">
+        function diffBackground() {
+            datetoday = new Date();
+            timenow = datetoday.getTime();
+            datetoday.setTime(timenow);
+            thehour = datetoday.getHours();
+            if (thehour >= 15 && thehour < 18)
+                display = "img/index-bg.jpg";
+            else if (thehour >= 18 && thehour < 21)
+                display = "img/index-bg-night.jpg";
+            else if (thehour >= 21 && thehour < 24)
+                display = "img/home-bg-star_track.jpg";
+            else if (thehour >= 0 && thehour < 3)
+                display = "img/home-bg-star_track.jpg";
+            else if (thehour >= 3 && thehour < 6)
+                display = "img/index-bg-night.jpg";
+            else if (thehour >= 6 && thehour < 12)
+                display = "img/index-bg.jpg";
+            else if (thehour >= 12 && thehour < 15)
+                display = "img/index-bg.jpg";
+            else
+                display = "img/index-bg.jpg";
+
+            var css = '<style type="text/css">';
+            css += 'header.intro-header{background-image: url(\'/' + display + '\');}';
+            css += '</style>';
+            document.write(css);
+        }
+    </script>
+
+</head>
+
+<!-- hack iOS CSS :active style -->
+
+<body ontouchstart="">
+
+    <!-- Navigation -->
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/blog">RogersLuo's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    <li>
+                        <a href="/blog">Blog</a>
+                    </li>
+                    <li>
+                        <a href="/archive">Archive</a>
+                    </li>
+                    <!-- 
+                    
+                    
+                    
+                    
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    
+                    
+                    <li>
+                        <a href="/archive/">Archive</a>
+                    </li>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                     -->
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/index-bg.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+
+
+
+
+
+    
+    <style type="text/css">
+        header.intro-header{
+            position: relative;
+            background-image: url('/img/index-bg.jpg');
+            background: ;
+        }
+
+        
+    </style>
+    
+    
+        
+    <header class="intro-header" >
+        
+    
+    <div class="header-mask"></div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/archive/?tag=HPC" title="HPC">HPC</a>
+                        
+                    </div>
+                    <h1 >HPC lab4 一个传热问题的并行计算</h1>
+                    
+                    <h2 class="subheading" ></h2>
+                    <span class="meta">Posted by RogersLuo's Blog on November 13, 2024</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+
+
+<!-- Post Content -->
+<article>
+    
+        <div class="container">
+            
+            <div class="row">
+
+                <!-- Post Container -->
+                <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                    <!-- Multi-Lingual -->
+                    
+
+                    <h1 id="中山大学计算机院本科生实验报告"><strong>中山大学计算机院本科生实验报告</strong></h1>
+
+<p><strong>（2024学年秋季学期）</strong></p>
+
+<p>课程名称：高性能计算程序设计 <strong>批改人：</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th> </th>
+      <th> </th>
+      <th> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>实验</td>
+      <td>heated_plate_openmp并行diy实现</td>
+      <td>专业（方向）</td>
+      <td>信息计算科学</td>
+    </tr>
+    <tr>
+      <td>学号</td>
+      <td>22336173</td>
+      <td>姓名</td>
+      <td>罗弘杰</td>
+    </tr>
+    <tr>
+      <td>Email</td>
+      <td>3133974071@qq.com</td>
+      <td>完成日期</td>
+      <td>2024-11-27</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="heated_plate_openmp任务的pthread并行">Heated_plate_openmp任务的Pthread并行</h2>
+
+<h3 id="文件说明">文件说明</h3>
+
+<p>任务一和任务三都在task1文件夹下，任务二在task2。</p>
+
+<h3 id="原始版本openmp">原始版本（Openmp）</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+</pre></td><td class="rouge-code"><pre>Number of processors available = 16
+Number of threads =              16
+MEAN = 74.949900
+
+Iteration  Change
+
+     1  18.737475
+     2  9.368737
+     4  4.098823
+     8  2.289577
+    16  1.136604
+    32  0.568201
+    64  0.282805
+   128  0.141777
+   256  0.070808
+   512  0.035427
+  1024  0.017707
+  2048  0.008856
+  4096  0.004428
+  8192  0.002210
+ 16384  0.001043
+
+ 16955  0.001000
+
+Error tolerance achieved.
+Wallclock time = 60.274613
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>使用之前修改的parallel for的框架。更改了循环内的对u矩阵赋值的函数(matrix_map_matrix)，代替原来的openmp方法，发现计算消耗时间增多，时间增长到300多秒。</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre></td><td class="rouge-code"><pre><span class="cm">/*
+    输入二维矩阵遍历的index，以及二维矩阵的地址
+*/</span>
+<span class="kt">void</span> <span class="o">*</span><span class="nf">matrix_map_matrix</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">args</span><span class="p">){</span> <span class="c1">//a function to map value to a matrix</span>
+    <span class="k">struct</span> <span class="nc">index_in</span> <span class="o">*</span><span class="n">index</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">index_in</span> <span class="o">*</span><span class="p">)</span><span class="n">args</span>
+    <span class="k">struct</span> <span class="nc">matrix2matrix</span> <span class="o">*</span><span class="n">argues</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">matrix2matrix</span> <span class="o">*</span><span class="p">)</span><span class="n">index</span><span class="o">-&gt;</span><span class="n">args</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span>
+    <span class="kt">int</span> <span class="n">row_increment</span> <span class="o">=</span> <span class="n">index</span><span class="o">-&gt;</span><span class="n">index_diy</span><span class="o">-&gt;</span><span class="n">row_increment</span>
+    <span class="kt">int</span> <span class="n">col_increment</span> <span class="o">=</span> <span class="n">index</span><span class="o">-&gt;</span><span class="n">index_diy</span><span class="o">-&gt;</span><span class="n">col_increment</span>
+    <span class="kt">int</span> <span class="n">row_start</span> <span class="o">=</span> <span class="n">index</span><span class="o">-&gt;</span><span class="n">index_diy</span><span class="o">-&gt;</span><span class="n">row_start</span>
+    <span class="kt">int</span> <span class="n">col_start</span> <span class="o">=</span> <span class="n">index</span><span class="o">-&gt;</span><span class="n">index_diy</span><span class="o">-&gt;</span><span class="n">col_start</span>
+    <span class="kt">int</span> <span class="n">row_end</span> <span class="o">=</span> <span class="n">index</span><span class="o">-&gt;</span><span class="n">index_diy</span><span class="o">-&gt;</span><span class="n">row_end</span>
+    <span class="kt">int</span> <span class="n">col_end</span> <span class="o">=</span> <span class="n">index</span><span class="o">-&gt;</span><span class="n">index_diy</span><span class="o">-&gt;</span><span class="n">col_end</span>
+    <span class="kt">double</span> <span class="o">**</span><span class="n">dst</span> <span class="o">=</span> <span class="n">argues</span><span class="o">-&gt;</span><span class="n">dst</span>
+    <span class="kt">double</span> <span class="o">**</span><span class="n">src</span> <span class="o">=</span> <span class="n">argues</span><span class="o">-&gt;</span><span class="n">src</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="n">row_start</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">row_end</span> <span class="n">i</span> <span class="o">+=</span> <span class="n">row_increment</span><span class="p">)</span>
+    <span class="p">{</span>  
+        <span class="k">for</span> <span class="p">(</span><span class="n">j</span> <span class="o">=</span> <span class="n">col_start</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">col_endj</span><span class="o">+=</span><span class="n">col_increment</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">dst</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">src</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> 
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">NULL</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre>     1  18.737475
+     2  9.368737
+     4  4.098823
+     8  2.289577
+    16  1.136604
+    32  0.568201
+    64  0.282805
+   128  0.141777
+   256  0.070808
+   512  0.035430
+  1024  0.017712
+  2048  0.008824
+  4096  0.004677
+  8192  0.002722
+
+ 11578  0.000931
+
+Error tolerance achieved.
+Wallclock time = 375.170502
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>这是因为pthread写的parallel for函数在不断的创建销毁子线程，严重损耗系统性能。 <br />
+我们考虑使用线程池来实现pthread线程的创建，保持（使用伪工作线程），分配工作和销毁。<br />
+线程池包含了条件变量notify，这是为了让在任务加入的时候，工作线程能及时唤醒。在任务队列为空的时候，工作线程及时休眠。
+线程池还包含了条件变量unfinished，这个条件变量标记了一批任务是否完成，一批完成才能运行下一批任务的投放，因为这个并行计算任务前后的计算任务是<strong>顺序相关的</strong>。
+线程池从github上获取https://github.com/JunhuaiYang/PthreadPool <br />
+增加了pool_wait()的实现，确保工作任务一批一批的并行处理。</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+</pre></td><td class="rouge-code"><pre><span class="cm">/*
+    线程池管理，保证pthread线程不会频繁的创建，销毁。
+*/</span>
+<span class="k">class</span> <span class="nc">PthreadPool</span>
+<span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="n">pthread_mutex_t</span> <span class="n">lock</span>                                   <span class="c1">// 互斥锁,保证公共变量临界区安全</span>
+    <span class="n">pthread_cond_t</span> <span class="n">notify</span>                                  <span class="c1">// 条件变量，标记是否有任务进入</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">queue</span><span class="o">&lt;</span><span class="n">Pthreadpool_Runable</span><span class="o">&gt;</span> <span class="n">thread_queue</span>           <span class="c1">// 任务队列</span>
+    <span class="n">pthread_t</span> <span class="o">*</span><span class="n">threads</span>                                     <span class="c1">// 任务数组</span>
+    <span class="kt">int</span> <span class="n">shutdown</span>                                           <span class="c1">// 表示线程池是否关闭</span>
+    <span class="k">static</span> <span class="kt">void</span> <span class="o">*</span><span class="n">threadpool_thread</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">threadpool</span><span class="p">)</span>       <span class="c1">// 运行函数</span>
+
+<span class="nl">public:</span>
+    <span class="n">PthreadPool</span><span class="p">()</span>
+    <span class="o">~</span><span class="n">PthreadPool</span><span class="p">()</span>
+    <span class="kt">bool</span> <span class="n">is_queue_empty</span><span class="p">()</span>
+    <span class="kt">int</span> <span class="n">thread_num</span>                                                  <span class="c1">// 线程数量</span>
+    <span class="kt">int</span> <span class="n">running_num</span>                                                 <span class="c1">// 正在运行的线程数</span>
+    <span class="kt">int</span> <span class="n">unfinished_task</span>                                               <span class="c1">//未完成的任务</span>
+    <span class="n">pthread_cond_t</span> <span class="n">cond</span>                                             <span class="c1">// 标记一批任务是否完成</span>
+    <span class="kt">int</span> <span class="n">Init</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">num</span><span class="p">)</span>                                       <span class="c1">// 初始化线程池</span>
+    <span class="kt">int</span> <span class="n">AddTask</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="p">(</span><span class="o">*</span><span class="n">function</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="p">),</span> <span class="kt">void</span> <span class="o">*</span><span class="n">argument</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">)</span> <span class="c1">// 加入任务</span>
+    <span class="kt">int</span> <span class="n">Destory</span><span class="p">(</span><span class="n">PthreadPool_Shutdown</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">graceful_shutdown</span><span class="p">)</span>      <span class="c1">// 停止正在进行的任务并摧毁线程池</span>
+    <span class="kt">void</span> <span class="n">pool_wait</span><span class="p">()</span>  <span class="c1">//等待所有的在线程池的任务都被实现，否则阻塞</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>最终的计算效果如下图显示，可以看到加速还是不错的，达到openmp一个量级的水平：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre>     1  18.737475
+     2  9.368737
+     4  4.098823
+     8  2.289577
+    16  1.136604
+    32  0.568201
+    64  0.282805
+   128  0.141777
+   256  0.070808
+   512  0.035427
+  1024  0.017707
+  2048  0.008856
+  4096  0.004428
+  8192  0.002210
+ 16384  0.001043
+
+ 16955  0.001000
+
+Error tolerance achieved.
+Wallclock time = 54.366369
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出矩阵的右下角25个元素，验证正确性 <br />
+HEATED_PLATE_OPENMP: <br />
+  Normal end of execution. <br />
+99.9699 99.9774 99.9850 99.9925 100.0000  <br />
+99.9774 99.9831 99.9887 99.9944 100.0000  <br />
+99.9850 99.9887 99.9925 99.9962 100.0000  <br />
+99.9925 99.9944 99.9962 99.9981 100.0000  <br />
+100.0000 100.0000 100.0000 100.0000 100.0000</p>
+
+<h2 id="mpi实现并行计算">MPi实现并行计算</h2>
+
+<h3 id="分析">分析</h3>
+
+<p>分两个部分，0号进程负责分配初始矩阵，管理工作进程的通信，值得注意的是</p>
+
+<ul>
+  <li>mpi传输时一般是连续内存读取，在分配矩阵的时候用连续分配的方法，不要double new(new两次)。</li>
+  <li>具体的计算逻辑是
+    <ol>
+      <li>0线程分配矩阵，计算Mean.</li>
+      <li>0进程发送矩阵w的分块（根据进程数目平均分配）给各个工作进程。</li>
+      <li>工作进程获得w的分块，赋值给u，根据有限元的网格计算公式计算结果w矩阵，最后比较u和w各个元素之间的 <br />
+最大不同max_diff，返回max_diff和计算之后的w矩阵给0进程。</li>
+      <li>0进程计算所有max_diff中最大的一个，赋值给diff，返回的矩阵w，赋值给矩阵w,比较diff和epsilon的大小，若满足diff &lt; eps,则计算收敛结束，0进程发送signal = -1给所有进程，工作进程收到-1信号就等待矩阵输入来重复计算。否则重复第2步。</li>
+    </ol>
+  </li>
+</ul>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+</pre></td><td class="rouge-code"><pre><span class="k">if</span> <span class="p">(</span><span class="n">my_rank</span> <span class="o">==</span><span class="mi">0</span><span class="p">){</span>
+    <span class="p">...</span>
+
+<span class="c1">// 分配连续内存</span>
+    <span class="kt">double</span> <span class="o">*</span><span class="n">w</span> <span class="o">=</span> <span class="p">(</span><span class="kt">double</span> <span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">M</span> <span class="o">*</span> <span class="n">N</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">))</span>
+    <span class="p">...</span> <span class="c1">//分配初始mean的矩阵</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">epsilon</span> <span class="o">&lt;=</span> <span class="n">diff</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1">// 发送矩阵u, w，让其他奴隶进程计算Mean, 有限元表格计算，赋值，计算max_diff</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">comm_sz</span> <span class="o">-</span> <span class="mi">1</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// 分配矩阵A的行</span>
+            <span class="c1">// my_diff[i] = 0</span>
+            <span class="n">begin_Arow</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">avg_rows</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>                                               
+            <span class="n">end_Arow</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">comm_sz</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">?</span> <span class="n">M</span> <span class="o">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">avg_rows</span>
+            <span class="n">end_Arow</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">end_Arow</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
+            <span class="c1">// 为了使用周围的数据，需要将区域上下两行多的数据传送过去。</span>
+            
+            <span class="n">MPI_Send</span><span class="p">(</span><span class="o">&amp;</span><span class="n">end_Arow</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">MPI_INT</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">MPI_COMM_WORLD</span><span class="p">)</span> <span class="c1">// end_Arow可以作为信号，如果是-1，则奴隶进程结束</span>
+
+            <span class="n">MPI_Send</span><span class="p">(</span><span class="o">&amp;</span><span class="n">w</span><span class="p">[</span><span class="n">begin_Arow</span> <span class="o">*</span> <span class="n">N</span><span class="p">],</span> <span class="p">(</span><span class="n">end_Arow</span> <span class="o">-</span> <span class="n">begin_Arow</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">,</span> <span class="n">MPI_DOUBLE</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">MPI_COMM_WORLD</span><span class="p">)</span>
+
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">comm_sz</span> <span class="o">-</span> <span class="mi">1</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>  <span class="c1">//return the std::max diff[i]</span>
+            <span class="n">begin_Arow</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">avg_rows</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>                                                                                                                                                                                                                                                                                                                      
+            <span class="n">end_Arow</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">comm_sz</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">?</span> <span class="n">M</span> <span class="o">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">avg_rows</span>
+            <span class="n">end_Arow</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">end_Arow</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
+            <span class="n">MPI_Recv</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_diff</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">MPI_DOUBLE</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">MPI_COMM_WORLD</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">status</span><span class="p">)</span>
+            <span class="n">MPI_Recv</span><span class="p">(</span><span class="o">&amp;</span><span class="n">w</span><span class="p">[(</span><span class="n">begin_Arow</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">],</span> <span class="p">(</span><span class="n">end_Arow</span> <span class="o">-</span> <span class="n">begin_Arow</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">,</span> <span class="n">MPI_DOUBLE</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">MPI_COMM_WORLD</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">status</span><span class="p">)</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">my_diff</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">diff</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="n">iterations</span><span class="o">++</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="n">iterations</span> <span class="o">==</span> <span class="n">iterations_print</span> <span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">printf</span> <span class="p">(</span> <span class="s">"    %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iterations</span><span class="p">,</span> <span class="n">diff</span> <span class="p">)</span>
+            <span class="n">iterations_print</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">iterations_print</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">signal</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="nf">printf</span><span class="p">(</span><span class="s">"At %d , episilon err reached, gonna kill all processes</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iterations</span><span class="p">)</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">comm_sz</span> <span class="o">-</span> <span class="mi">1</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+        <span class="n">MPI_Send</span><span class="p">(</span><span class="o">&amp;</span><span class="n">signal</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">MPI_INT</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">MPI_COMM_WORLD</span><span class="p">)</span> <span class="c1">// end_Arow可以作为信号，如果是-1，则奴隶进程结束</span>
+    <span class="p">}</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>注意由于需要用元素4周的其他元素作为网格计算，所有接受矩阵要在行维度上增加两行。</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+</pre></td><td class="rouge-code"><pre><span class="k">else</span> <span class="p">{</span> <span class="c1">// 非 0 号进程的代码 所有的索引满足左闭右开要求</span>
+    <span class="kt">int</span> <span class="n">real_begin_Arow</span> <span class="o">=</span> <span class="n">my_rank</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">?</span> <span class="mi">1</span> <span class="o">:</span> <span class="n">avg_rows</span> <span class="o">*</span> <span class="p">(</span><span class="n">my_rank</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1">//实际计算的元素初始</span>
+    <span class="kt">int</span> <span class="n">virtual_begin_Arow</span> <span class="o">=</span> <span class="n">real_begin_Arow</span> <span class="o">-</span> <span class="mi">1</span> <span class="c1">//需要的上计算元素</span>
+    <span class="kt">int</span> <span class="n">real_end_Arow</span> <span class="o">=</span> <span class="n">my_rank</span> <span class="o">==</span> <span class="n">comm_sz</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">?</span> <span class="n">M</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">:</span> <span class="p">(</span><span class="n">avg_rows</span> <span class="o">*</span> <span class="n">my_rank</span><span class="p">)</span> <span class="c1">//实际计算元素的上界</span>
+    <span class="kt">int</span> <span class="n">virtual_end_Arow</span> <span class="o">=</span> <span class="n">real_end_Arow</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1">//需要的下计算元素</span>
+    <span class="kt">double</span> <span class="o">*</span><span class="n">local_w</span> <span class="o">=</span> <span class="p">(</span><span class="kt">double</span> <span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">((</span><span class="n">virtual_end_Arow</span> <span class="o">-</span> <span class="n">virtual_begin_Arow</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">))</span> <span class="c1">// 分配子矩阵 w 的内存</span>
+    <span class="kt">double</span> <span class="o">*</span><span class="n">local_u</span> <span class="o">=</span> <span class="p">(</span><span class="kt">double</span> <span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">((</span><span class="n">virtual_end_Arow</span> <span class="o">-</span> <span class="n">virtual_begin_Arow</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">))</span> <span class="c1">// 分配子矩阵 u 的内存</span>
+    <span class="kt">double</span> <span class="n">max_diff</span>
+    <span class="kt">int</span> <span class="n">M_len</span> <span class="o">=</span> <span class="n">virtual_end_Arow</span> <span class="o">-</span> <span class="n">virtual_begin_Arow</span>  <span class="c1">//接受矩阵维度</span>
+    <span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// 接收分配的行信息，判断是否结束，正常发送正确的最后行，结束的时候输入信号-1</span>
+        <span class="n">MPI_Recv</span><span class="p">(</span><span class="o">&amp;</span><span class="n">signal</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">MPI_INT</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">MPI_COMM_WORLD</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">status</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="n">virtual_end_Arow</span> <span class="o">!=</span> <span class="n">signal</span><span class="p">)</span>
+        <span class="p">{</span> <span class="c1">// 结束信号</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"%d process received quit signal %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">my_rank</span><span class="p">,</span> <span class="n">signal</span><span class="p">)</span>
+            <span class="k">break</span>
+        <span class="p">}</span>
+
+        <span class="c1">// 接收子矩阵数据到local_u,后面计算的结果放在local_w</span>
+  <span class="n">l</span>    <span class="nf">MPI_Recv</span><span class="p">(</span><span class="n">local_u</span><span class="p">,</span> <span class="p">(</span><span class="n">virtual_end_Arow</span> <span class="o">-</span> <span class="n">virtual_begin_Arow</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">,</span> <span class="n">MPI_DOUBLE</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">MPI_COMM_WORLD</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">status</span><span class="p">)</span>
+
+        <span class="n">max_diff</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">M_len</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">i</span> <span class="o">==</span><span class="n">M_len</span><span class="o">-</span><span class="mi">1</span><span class="p">){</span>  <span class="c1">//local_w边界</span>
+                <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">N</span>  <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="n">local_w</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">N</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_u</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">N</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span>
+                <span class="p">}</span>
+                <span class="k">continue</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">N</span>  <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">j</span> <span class="o">==</span> <span class="mi">0</span><span class="o">||</span><span class="n">j</span><span class="o">==</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">){</span> <span class="c1">//local_w边界</span>
+                    <span class="n">local_w</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">N</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_u</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">N</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span>
+                    <span class="k">continue</span>
+                <span class="p">}</span>
+                <span class="c1">// 以下为网格计算结果</span>
+                <span class="n">local_w</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">N</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="p">(</span><span class="n">local_u</span><span class="p">[(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">local_u</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span>  
+                                             <span class="n">local_u</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">N</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">+</span> <span class="n">local_u</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">N</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)])</span>
+                <span class="kt">double</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">fabs</span><span class="p">(</span><span class="n">local_u</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">N</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">local_w</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">N</span> <span class="o">+</span> <span class="n">j</span><span class="p">])</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">diff</span> <span class="o">&gt;</span> <span class="n">max_diff</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="n">max_diff</span> <span class="o">=</span> <span class="n">diff</span> <span class="c1">// 更新最大差异</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="n">MPI_Send</span><span class="p">(</span><span class="o">&amp;</span><span class="n">max_diff</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">MPI_DOUBLE</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">MPI_COMM_WORLD</span><span class="p">)</span>                                                         <span class="c1">// 发送最大差异</span>
+        <span class="n">MPI_Send</span><span class="p">(</span><span class="o">&amp;</span><span class="n">local_w</span><span class="p">[</span><span class="n">N</span><span class="p">],</span> <span class="p">(</span><span class="n">real_end_Arow</span> <span class="o">-</span> <span class="n">real_begin_Arow</span><span class="p">)</span> <span class="o">*</span> <span class="n">N</span><span class="p">,</span> <span class="n">MPI_DOUBLE</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">MPI_COMM_WORLD</span><span class="p">)</span> <span class="c1">// 发送更新后的子矩阵 w</span>
+    <span class="p">}</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d process ending</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">my_rank</span><span class="p">)</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">local_w</span><span class="p">)</span> <span class="c1">// 释放子矩阵内存</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">local_u</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="运行结果">运行结果</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre>     1  18.737475
+     2  9.368737
+     4  4.098823
+     8  2.289577
+    16  1.136604
+    32  0.568201
+    64  0.282805
+   128  0.141777
+   256  0.070808
+   512  0.035427
+  1024  0.017707
+  2048  0.008856
+  4096  0.004428
+  8192  0.002210
+ 16384  0.001043
+At 16955 , episilon err reached, gonna kill all processes
+Elapsed time: 17.741727 seconds
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>对比openmp版本：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre>     1  18.737475
+     2  9.368737
+     4  4.098823
+     8  2.289577
+    16  1.136604
+    32  0.568201
+    64  0.282805
+   128  0.141777
+   256  0.070808
+   512  0.035427
+  1024  0.017707
+  2048  0.008856
+  4096  0.004428
+  8192  0.002210
+ 16384  0.001043
+ 16955  0.001000
+Error tolerance achieved.
+Wallclock time = 60.274613
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>可以看到正确性得到保证，同时计算时间更快。</p>
+
+<h3 id="后续优化">后续优化</h3>
+
+<p>考虑到这里对矩阵的操作都是二维遍历，然后对矩阵元素进行操作，后续可以考虑使用一个lambda函数传参到一个二维遍历函数traverse()实现更自由的操作</p>
+
+<h2 id="性能测试">性能测试</h2>
+
+<p>对任务一用Pthread实现parallel_for进行性能测试，包括时间测试，内存测试。</p>
+
+<h3 id="时间测试">时间测试</h3>
+
+<p>测试程序在不同问题规模和计算规模的情况下，计算时间的情况，部分情况时间太长无法测得</p>
+
+<div class="language-makefile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="nl">run</span><span class="o">:</span> <span class="nf">//makefile</span>
+	<span class="k">for </span>n <span class="k">in </span>1, 2, 4, 8, 16 <span class="k">do</span> <span class="se">\</span>
+		<span class="k">for </span>size <span class="k">in </span>128 256 512 1024 2048 4096 8192 <span class="k">do</span> <span class="se">\</span>
+			<span class="nb">echo</span> <span class="s2">"Running program with size </span><span class="nv">$$</span><span class="s2">size and </span><span class="nv">$$</span><span class="s2">n threads"</span> | <span class="nb">tee</span> <span class="nt">-a</span> output.txt <span class="se">\</span>
+			./<span class="p">$(</span>PROGRAM<span class="p">)</span> <span class="nv">$$</span>size <span class="nv">$$</span>size <span class="nv">$$</span>n | <span class="nb">tee</span> <span class="nt">-a</span> output.txt <span class="se">\</span>
+		<span class="k">done</span> <span class="se">\</span>
+		<span class="nb">echo</span> <span class="s2">"End of program with </span><span class="nv">$$</span><span class="s2">n threads"</span> | <span class="nb">tee</span> <span class="nt">-a</span> output.txt <span class="se">\</span>
+		<span class="nb">echo</span> <span class="s2">""</span> | <span class="nb">tee</span> <span class="nt">-a</span> output.txt <span class="se">\</span>
+	<span class="k">done</span> <span class="se">\</span>
+	<span class="nb">echo</span> <span class="s2">"End of program"</span> | <span class="nb">tee</span> <span class="nt">-a</span> output.txt <span class="se">\</span>
+	<span class="nb">echo</span> <span class="s2">""</span> | <span class="nb">tee</span> <span class="nt">-a</span> output.txt
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>矩阵维度</th>
+      <th>1 核心 (秒)</th>
+      <th>2 核心 (秒)</th>
+      <th>4 核心 (秒)</th>
+      <th>8 核心 (秒)</th>
+      <th>16 核心 (秒)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>128</td>
+      <td>1.472873</td>
+      <td>0.979901</td>
+      <td>0.795760</td>
+      <td>0.891577</td>
+      <td>1.884200</td>
+    </tr>
+    <tr>
+      <td>256</td>
+      <td>11.536146</td>
+      <td>6.826970</td>
+      <td>4.473302</td>
+      <td>8.035092</td>
+      <td>8.782962</td>
+    </tr>
+    <tr>
+      <td>512</td>
+      <td>78.093475</td>
+      <td>42.615858</td>
+      <td>21.921012</td>
+      <td>15.068684</td>
+      <td>27.455385</td>
+    </tr>
+    <tr>
+      <td>1024</td>
+      <td>322.881929</td>
+      <td>174.309762</td>
+      <td>96.825203</td>
+      <td>59.636986</td>
+      <td>74.984984</td>
+    </tr>
+    <tr>
+      <td>2048</td>
+      <td>1273.401172</td>
+      <td>666.447201</td>
+      <td>347.250282</td>
+      <td>214.609258</td>
+      <td>246.510050</td>
+    </tr>
+    <tr>
+      <td>4096</td>
+      <td>2930.082439</td>
+      <td>2654.926696</td>
+      <td>1391.575813</td>
+      <td>791.794789</td>
+      <td>822.905625</td>
+    </tr>
+    <tr>
+      <td>8192</td>
+      <td> </td>
+      <td>10927.505105</td>
+      <td> </td>
+      <td>2950.624220</td>
+      <td>2230.558220</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+</pre></td><td class="rouge-code"><pre>时间复杂度和问题规模的关系基本上是O(M*N), 在问题规模不太大的时候，中等规模的线程数计算效率更高。
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="内存测试">内存测试</h3>
+
+<p>使用 Valgrind 进行内存分析
+可以使用以下命令来启动 Valgrind，分析程序的内存使用情况，尤其是堆内存消耗：</p>
+
+<p>这里测试500 500 8线程的计算问题</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+</pre></td><td class="rouge-code"><pre>valgrind <span class="nt">--tool</span><span class="o">=</span>massif <span class="nt">--time-unit</span><span class="o">=</span>B <span class="nt">--stacks</span><span class="o">=</span><span class="nb">yes</span> ./main 500 500 8
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>命令解析：</p>
+
+<ul>
+  <li>–tool=massif：指定使用 massif 工具来分析内存消耗。</li>
+  <li>–time-unit=B：以字节（B）为单位来显示内存消耗量。</li>
+  <li>–stacks=yes：启用栈内存的分析，帮助捕捉栈上的内存消耗。</li>
+  <li>./your_exe：这是你要分析的可执行文件。</li>
+</ul>
+
+<p>massif 输出日志 (massif.out.pid) 和 ms_print 打印
+当程序运行时，massif 会生成一个输出文件，通常命名为 massif.out.pid，其中 pid 是进程的 ID。这份文件包含了程序在不同时间点的内存消耗数据。</p>
+
+<p>使用 ms_print 命令来解析和可视化该日志文件：</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+</pre></td><td class="rouge-code"><pre>ms_print massif.out.pid
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>在计算500* 500的任务 使用8个线程
+<img src="img/image.png" alt="alt text" />
+设计的并行方式是一开始分配了2个500<em>500的double矩阵，消耗共4MB左右，图片说明程序没有堆溢出的风险。
+计算500 * 500的任务，使用4个线程
+<img src="img/image-1.png" alt="alt text" />
+可以看到内存消耗基本一致，说明线程数量对内存消耗量影响不大。
+再考虑256</em> 256的任务，用8线程计算
+<img src="img/image-2.png" alt="alt text" />
+可以看到内存消耗减少到了原来的1/4
+对于M * N的问题规模，内存需求是O(M * N)
+最后查看内存分配的来源
+<img src="img/image-3.png" alt="alt text" />
+可以看到98%以上的内存都是堆分配产生的，这之间的大部分又是开辟两个矩阵产生的</p>
+
+
+                    
+                    <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img
+                            alt="Creative Commons License"
+                            style="border-width:0;max-width: 40%;margin-left: 0px;margin-bottom: 5px;"
+                            src="/img/icons/cc_byncsa.flat.guokr.svg" /></a><text style="font-size: 14px">本作品采用<a
+                            rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享署名-非商业性使用-相同方式共享
+                            4.0
+                            国际许可协议</a>进行许可。<br />This work is licensed under a <a rel="license"
+                            href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons
+                            Attribution-NonCommercial-ShareAlike 4.0 International License</a>.</text><br />
+                    
+
+                    <hr style="visibility: hidden;">
+                    <ul class="pager">
+                        
+                        <li class="previous">
+                            <a href="/2024-11-13-HPClab3/"
+                                data-toggle="tooltip" data-placement="top" title="HPC lab3 Openmp并行矩阵乘法">
+                                Previous<br>
+                                <span>HPC lab3 Openmp并行矩阵乘法</span>
+                            </a>
+                        </li>
+                        
+                        
+                        <li class="next">
+                            <a href="/2024-11-13-HPClab5/"
+                                data-toggle="tooltip" data-placement="top" title="HPC lab5 cuda编程的并行计算">
+                                Next<br>
+                                <span>HPC lab5 cuda编程的并行计算</span>
+                            </a>
+                        </li>
+                        
+                    </ul>
+                    <hr style="visibility: hidden;">
+
+                    <!--Gitalk评论start  -->
+                    
+                    <!-- Gitalk end -->
+
+                    
+
+                    
+                </div>
+
+                <!-- Side Catalog Container -->
+                
+                <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                    <div class="side-catalog">
+                        <hr class="hidden-sm hidden-xs">
+                        <h5>
+                            <a class="catalog-toggle" href="#">CATALOG</a>
+                        </h5>
+                        <ul class="catalog-body"></ul>
+                    </div>
+                </div>
+                
+
+                <!-- Sidebar Container -->
+                <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+                    <!-- DONE: FRIEND has a link to the last tag -->
+
+                    <!-- Featured Tags -->
+                    
+
+
+<section>
+    
+        <hr class="hidden-sm hidden-xs">
+    
+    <h5><a href="/archive/">FEATURED TAGS</a></h5>
+    <div class="tags">
+        
+        
+        
+        
+        
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=OS"
+                    title="OS"
+                    rel="7">OS</a>
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=HPC"
+                    title="HPC"
+                    rel="7">HPC</a>
+    </div>
+</section>
+
+
+                    <!-- Friends Blog -->
+                    
+                </div>
+            </div>
+        </div>
+</article>
+
+<!-- add support for mathjax by voleking-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    TeX: {
+      equationNumbers: {
+        autoNumber: "AMS"
+      }
+    },
+    SVG: {
+      scale: 90
+    },
+    tex2jax: {
+      inlineMath: [ ['$','$'] ],
+      displayMath: [ ['$$','$$'], ['\\[','\\]'], ['\\(','\\)'] ],
+      processEscapes: true,
+    }
+  });
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG">
+</script>
+
+
+<!-- CleverYh -->
+
+<!-- End CleverYh -->
+
+
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+        var d = document, t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js", function () {
+        anchors.options = {
+            visible: 'hover',
+            placement: 'right',
+            // icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link {
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top: -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- SNS Link -->
+                
+
+
+<ul class="list-inline text-center">
+    
+
+        
+        
+        
+        
+        <li>
+            <a target="_blank" title="Github" href="https://github.com/luohj29">
+                <!-- <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                </span> -->
+                <span class="fa-stack fa-lg">
+                    <i class="fa-brands fa-github-alt fa-stack-1x"></i>
+                </span>
+            </a>
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        
+    </ul>
+
+                <p class="copyright text-muted">
+                    <text style="opacity: 1; color: #007799;">&copy; 2019 - 2025 <a
+                            href="https://luohj29.github.io/">RogersLuo's Blog</a>
+                    </text><br>
+                    <span style="opacity: 0.78; color: #007799;font-family: 'CamingoCodeRegular';">
+                        <!-- Default Statcounter code for lzzmm
+                    https://lzzmm.github.io -->
+                        <script type="text/javascript">
+                            var sc_project = 12680417;
+                            var sc_invisible = 0;
+                            var sc_security = "74b5722d";
+                            var sc_text = 2;
+                            var scJsHost = "https://";
+                            document.write("<script type='text/javascript' src='" +
+                                scJsHost +
+                                "statcounter.com/counter/counter.js'></" + "script>");
+                        </script>
+                        <!-- <noscript>
+                        <div class="statcounter"><a title="Web Analytics" href="https://statcounter.com/" target="_blank"><img
+                                    class="statcounter" src="https://c.statcounter.com/12680417/0/74b5722d/0/" alt="Web Analytics"
+                                    referrerPolicy="no-referrer-when-downgrade"></a></div>
+                        </noscript> -->
+                        <!-- End of Statcounter Code -->
+                        <span> visits | </span>
+                        <span>Uptime:</span><span id="display_live_time"></span>
+                        <script>function blog_live_time() {
+                                window.setTimeout(blog_live_time, 1000);
+                                const start = new Date('2020-02-16T14:37:00');
+                                const now = new Date();
+                                const timeDiff = (now.getTime() - start.getTime());
+                                const msPerMinute = 60 * 1000;
+                                const msPerHour = 60 * msPerMinute;
+                                const msPerDay = 24 * msPerHour;
+                                const passDay = Math.floor(timeDiff / msPerDay);
+                                const passHour = Math.floor((timeDiff % msPerDay) / 60 / 60 / 1000);
+                                const passMinute = Math.floor((timeDiff % msPerHour) / 60 / 1000);
+                                const passSecond = Math.floor((timeDiff % msPerMinute) / 1000);
+                                display_live_time.innerHTML = " " + passDay + "d " + passHour + "h " + passMinute + "m " + passSecond + "s ";
+                            }
+                            blog_live_time();
+                        </script>
+                    </span><br>
+                    <text style="opacity: 0.66; color: #0099bb;">Powered by <a
+                            href="https://github.com/luohj29/luohj29.github.io"
+                            target="_blank">luohj29.github.io</a> |
+                        <iframe style="margin-left: 2px; margin-right: -20px; margin-bottom:-5px; opacity: 0.55;"
+                            frameborder="0" scrolling="0" width="100px" height="20px"
+                            src="https://ghbtns.com/github-btn.html?user=luohj29&repo=luohj29.github.io&type=star&count=true">
+                        </iframe></text><br>
+                    <text style="opacity: 0.6; font-size: 13px;">Improved from the theme by <a
+                            href="http://huangxuan.me/" target="_blank">Hux Blog</a></text>
+                    <!-- </text> -->
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src=" /js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<!-- Currently, only navbar scroll-down effect at desktop still depends on this -->
+<script src=" /js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src=" /js/hux-blog.min.js "></script>
+
+<!-- Service Worker -->
+
+<script src=" /js/snackbar.js "></script>
+<script src=" /js/sw-registration.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+        var d = document, t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+
+
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function () {
+        var $nav = document.querySelector("nav");
+        if ($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog(selector) {
+
+        // interop with multilangual 
+        if ('' == 'true') {
+            _containerSelector = 'div.post-container.active'
+        } else {
+            _containerSelector = 'div.post-container'
+        }
+
+        // init
+        var P = $(_containerSelector), a, n, t, l, i, c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+
+        // clean
+        $(selector).html('')
+
+        // appending
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#" + $(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="' + i + '" rel="nofollow">' + t + '</a>');
+            l = $('<li class="' + n + '_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function (e) {
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+<!-- Multi-Lingual -->
+
+
+
+    <!-- Image to hack wechat -->
+    <img src="/img/icon_wechat.png" width="0" height="0" />
+    <!-- Migrate from head to bottom, no longer block render and still work -->
+</body>
+
+</html>

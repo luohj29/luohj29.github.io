@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Rogers | learning in cs and math">
+    <meta name="keywords" content="Rogers, luohj29, blog, cs, math, sysu,ML,Photography">
+    <meta name="theme-color" content="#000000">
+
+    <!-- Open Graph -->
+    
+    <meta property="og:title"
+                content="OS lab6 实现自旋锁，信号量 - RogersLuo">
+    
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="
+">
+    
+    <meta property="article:published_time" content=" 2024-05-19T00:00:00Z">
+    
+    
+    
+    <meta property="article:tag" content="OS">
+    
+    
+    <meta property="og:image" content="http://localhost:4000/img/Rogers.png">
+    <meta property="og:url" content="http://localhost:4000/2024-05-19-OS-lab6/">
+    <meta property="og:site_name" content="RogersLuo">
+
+    <title>OS lab6 实现自旋锁，信号量 - RogersLuo</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="http://localhost:4000/2024-05-19-OS-lab6/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href=" /css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href=" /css/hux-blog.min.css">
+
+    
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"
+        type="text/css">
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+
+    <!-- diffBackground -->
+    <script type="text/javascript">
+        function diffBackground() {
+            datetoday = new Date();
+            timenow = datetoday.getTime();
+            datetoday.setTime(timenow);
+            thehour = datetoday.getHours();
+            if (thehour >= 15 && thehour < 18)
+                display = "img/index-bg.jpg";
+            else if (thehour >= 18 && thehour < 21)
+                display = "img/index-bg-night.jpg";
+            else if (thehour >= 21 && thehour < 24)
+                display = "img/home-bg-star_track.jpg";
+            else if (thehour >= 0 && thehour < 3)
+                display = "img/home-bg-star_track.jpg";
+            else if (thehour >= 3 && thehour < 6)
+                display = "img/index-bg-night.jpg";
+            else if (thehour >= 6 && thehour < 12)
+                display = "img/index-bg.jpg";
+            else if (thehour >= 12 && thehour < 15)
+                display = "img/index-bg.jpg";
+            else
+                display = "img/index-bg.jpg";
+
+            var css = '<style type="text/css">';
+            css += 'header.intro-header{background-image: url(\'/' + display + '\');}';
+            css += '</style>';
+            document.write(css);
+        }
+    </script>
+
+</head>
+
+<!-- hack iOS CSS :active style -->
+
+<body ontouchstart="">
+
+    <!-- Navigation -->
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/blog">RogersLuo's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    <li>
+                        <a href="/blog">Blog</a>
+                    </li>
+                    <li>
+                        <a href="/archive">Archive</a>
+                    </li>
+                    <!-- 
+                    
+                    
+                    
+                    
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    
+                    
+                    <li>
+                        <a href="/archive/">Archive</a>
+                    </li>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                     -->
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/index-bg.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+
+
+
+
+
+    
+    <style type="text/css">
+        header.intro-header{
+            position: relative;
+            background-image: url('/img/index-bg.jpg');
+            background: ;
+        }
+
+        
+    </style>
+    
+    
+        
+    <header class="intro-header" >
+        
+    
+    <div class="header-mask"></div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/archive/?tag=OS" title="OS">OS</a>
+                        
+                    </div>
+                    <h1 >OS lab6 实现自旋锁，信号量</h1>
+                    
+                    <h2 class="subheading" ></h2>
+                    <span class="meta">Posted by RogersLuo's Blog on May 19, 2024</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+
+
+<!-- Post Content -->
+<article>
+    
+        <div class="container">
+            
+            <div class="row">
+
+                <!-- Post Container -->
+                <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                    <!-- Multi-Lingual -->
+                    
+
+                    <p><img src="..\img\in-post\image-20240315232430405.png" alt="image-20240315232430405" /></p>
+
+<h1 id="本科生实验报告"><strong>本科生实验报告</strong></h1>
+
+<p>实验课程: 操作系统原理实验</p>
+
+<p>任课教师: 刘宁</p>
+
+<p>实验题目:实验6并发与锁机制</p>
+
+<p>专业名称: 信息与计算科学</p>
+
+<p>学生姓名:罗弘杰</p>
+
+<p>学生学号: 22336173</p>
+
+<p>实验地点: 实验中心D503</p>
+
+<p>实验时间: 2024/3/15</p>
+
+<h2 id="section-1-实验概述"><strong>Section 1 实验概述</strong></h2>
+
+<p>在本次实验中，我们首先使用硬件支持的原子指令来实现自旋锁SpinLock，自旋锁将成为实现线程互斥的有力工具。接着，我们使用SpinLock来实现信号量，最后我们使用SpinLock和信号量来给出两个实现线程互斥的解决方案。</p>
+
+<h2 id="section-2-预备知识与实验环境"><strong>Section 2 预备知识与实验环境</strong></h2>
+
+<p>操作系统，同步，互斥，死锁等理论知识</p>
+
+<h2 id="section-3-实验任务"><strong>Section 3 实验任务</strong></h2>
+
+<h3 id="实验任务1--自旋锁与信号量的实现--">实验任务1	 自旋锁与信号量的实现  ：</h3>
+
+<h4 id="子任务1-利用自旋锁和信号量实现同步">子任务1-利用自旋锁和信号量实现同步</h4>
+
+<p>​	在实验6中，我们实现了自旋锁和信号量机制。现在，请同学们分别利用指导书中实现的自 旋锁和信号量⽅法，解决实验6指导书中的“消失的芝士汉堡”问题，保存结果截图并说说你的总 体思路。注意：请将你姓名的英文缩写包含在某个线程的输出信息中（比如代替母亲或者儿子），⽤作结果截图中的个⼈信息表征。</p>
+
+<h4 id="子任务2-自实现锁机制">子任务2-自实现锁机制</h4>
+
+<p>​	实验6教程中使用了原⼦指令 xchg 来实现自旋锁。但这种方法并不是唯一的。例如，x86指 令中提供了另外⼀个原子指令 bts 和 lock 前缀等，这些指令也可以用来实现锁机制。现在，同学 们需要结合自己所学的知识，实现⼀个与指导书实现方式不同的锁机制。最后，尝试用你实现的 锁机制解决“消失的芝士汉堡”问题，保存结果截图并说说你的总体思路。</p>
+
+<h3 id="实验任务2">实验任务2：</h3>
+
+<p>Assignment 2 生产者-消费者问题</p>
+
+<p>总要求和任务场景</p>
+
+<ol>
+  <li>
+    <p>同学们请在下述问题场景A或问题场景B中选择⼀个，然后在实验6教程的代码环境下创建多 个线程来模拟你选择的问题场景。同学们需自行决定每个线程的执行次数，以⽅便观察临界 资源变化为首要原则。</p>
+  </li>
+  <li>
+    <p>请将你学号的后4位包含在其中⼀个线程的输出信息中，⽤作结果截图中的个⼈信息表征。 例如，学号为 21319527 的同学选择问题A，并扮演服务生A，则服务生A放入1块蛋糕时，程序输出 “Waiter-A 9527  put a piece of matcha cake in the plate.</p>
+
+    <p><img src="..\img\in-post\image-20240517133807614.png" alt="image-20240517133807614" /></p>
+  </li>
+</ol>
+
+<h3 id="实验任务3">实验任务3：</h3>
+
+<p>问题场景  假设有5位哲学家，他们在就餐时只能思考或者就餐。这些哲学家公用一个圆桌，每个哲学 家都坐在一把指定的椅子上。在桌子上放着5根筷子，每两根筷子之间都放着一碗葱油面。</p>
+
+<p>下面 是一些约束条件：</p>
+
+<ol>
+  <li>当一位哲学家处于思考状态时，他对其他哲学家不会产生影响 当一位哲学家感到饥饿时，他会试图拿起与他相邻的两根筷子</li>
+  <li>一个哲学家一次只能拿起一根筷子，</li>
+  <li>在拿到两根筷子之前不会放下手里的筷子</li>
+  <li>如果筷子在其他哲学家手里，则需等待</li>
+  <li>当一个饥饿的哲学家同时拥有两根筷子时，他会开始吃面</li>
+  <li>吃碗面后的哲学家会同时放下两根筷子，并开始思考</li>
+</ol>
+
+<h2 id="section-4-实验步骤与实验结果"><strong>Section 4 实验步骤与实验结果</strong></h2>
+
+<p>​	该节描述每个实验任务的具体的完成过程，包括思路分析、代码实现与执行、结果展示三个部分，实验任务之间的划分应当清晰明了，实验思路分析做到有逻辑、有条理。</p>
+
+<h3 id="--实验任务1-">————————- 实验任务1————————-</h3>
+
+<h4 id="任务要求">任务要求：</h4>
+
+<h4 id="子任务1-利用自旋锁和信号量实现同步-1">子任务1-利用自旋锁和信号量实现同步</h4>
+
+<p>​	在实验6中，我们实现了自旋锁和信号量机制。现在，请同学们分别利用指导书中实现的自 旋锁和信号量⽅法，解决实验6指导书中的“消失的芝士汉堡”问题，保存结果截图并说说你的总 体思路。注意：请将你姓名的英文缩写包含在某个线程的输出信息中（比如代替母亲或者儿 子），⽤作结果截图中的个⼈信息表征。</p>
+
+<h4 id="思路分析">思路分析：</h4>
+
+<p>​	根据实验资料的指示，分别使用自旋锁和信号量来实现同步</p>
+
+<p>​	自旋锁：</p>
+
+<p>​	自旋锁是一种简单的同步原语，用于在多线程环境下保护共享资源。其基本思想是当一个线程尝试获取一个已被其他线程持有的锁时，不是立即放弃CPU并进入等待状态（如睡眠），而是“自旋”在一个循环中，不断地检查锁是否已经释放。这种检查通常通过原子操作完成，确保了操作的完整性。一旦锁变为可用状态，自旋的线程就会立即获取锁并继续执行</p>
+
+<p>​	缺点：</p>
+
+<ul>
+  <li>
+    <p>忙等待，消耗处理机时间。</p>
+  </li>
+  <li>
+    <p>可能饥饿。</p>
+  </li>
+  <li>
+    <p>可能死锁</p>
+
+    <h4 id="代码分析">代码分析</h4>
+
+    <p>原子交换的汇编函数，</p>
+
+    <pre><code class="language-assembly">; void asm_atomic_exchange(uint32 *register, uint32 *memeory);
+asm_atomic_exchange:
+    push ebp
+    mov ebp, esp
+    pushad
+  
+    ;get random number
+  
+    mov ebx, [ebp + 4 * 2] ; register
+    mov eax, [ebx]         ; 
+    mov ebx, [ebp + 4 * 3] ; memory
+    xchg [ebx], eax        ;
+    mov ebx, [ebp + 4 * 2] ; memory
+    mov [ebx], eax         ; 
+  
+    popad
+    pop ebp
+    ret
+  
+</code></pre>
+
+    <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="kt">void</span> <span class="n">SpinLock</span><span class="o">::</span><span class="n">lock</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">uint32</span> <span class="n">key</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  
+    <span class="k">do</span>
+    <span class="p">{</span>
+        <span class="n">asm_atomic_exchange</span><span class="p">(</span><span class="o">&amp;</span><span class="n">key</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">bolt</span><span class="p">);</span>
+        <span class="c1">//printf("pid: %d\n", programManager.running-&gt;pid);</span>
+    <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">key</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ul>
+
+<h4 id="实验结果">实验结果：</h4>
+
+<p>​	由于线程调度是轮转调度，所以ta线程会在未执行完就被学生线程抢占，但是由于自旋锁的存在，学生需要等待ta线程执行完成才能进入共享区域，<strong>否则一直在循环检测进入条件（忙等待）</strong></p>
+
+<h6><img src="..\img\in-post\image-20240516131233962.png" alt="image-20240516131233962" /></h6>
+
+<h4 id="子任务1-利用信号量实现同步">子任务1-利用信号量实现同步</h4>
+
+<h4 id="思路分析-1">思路分析：</h4>
+
+<p>​	共享变量为信号量，为正数的时候表示可用资源的数量，也就是可同时进入执行区的进程数量；</p>
+
+<p>​	为负数的时候，表示正在阻塞队列里等待资源释放的进程数量。</p>
+
+<p>​	<code class="language-plaintext highlighter-rouge">P</code>操作：当一个进程想要访问一个受信号量保护的资源时，它需要执行<code class="language-plaintext highlighter-rouge">P</code>操作。这包括：检查信号量的值，如果大于零，则减一并允许进程继续；如果等于零，则进程必须等待（可能被阻塞）直到信号量的值大于零。</p>
+
+<p>​	<code class="language-plaintext highlighter-rouge">V</code>操作：当一个进程完成对资源的访问或释放资源时，它执行<code class="language-plaintext highlighter-rouge">V</code>操作。这会将信号量的值加一，并唤醒一个或多个（如果有多个进程在等待）等待该信号量的进程。</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Semaphore</span>
+<span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="n">uint32</span> <span class="n">counter</span><span class="p">;</span>
+    <span class="n">List</span> <span class="n">waiting</span><span class="p">;</span> <span class="c1">//等待,是一个先进先出的队列结构</span>
+    <span class="n">SpinLock</span> <span class="n">semLock</span><span class="p">;</span>
+
+<span class="nl">public:</span>
+    <span class="n">Semaphore</span><span class="p">();</span>
+    <span class="kt">void</span> <span class="n">initialize</span><span class="p">(</span><span class="n">uint32</span> <span class="n">counter</span><span class="p">);</span>
+    <span class="kt">void</span> <span class="n">P</span><span class="p">();</span>
+    <span class="kt">void</span> <span class="n">V</span><span class="p">();</span>
+<span class="p">};</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre><span class="kt">void</span> <span class="n">Semaphore</span><span class="o">::</span><span class="n">P</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">PCB</span> <span class="o">*</span><span class="n">cur</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">semLock</span><span class="p">.</span><span class="n">lock</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">counter</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="o">--</span><span class="n">counter</span><span class="p">;</span>
+            <span class="n">semLock</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">programManager</span><span class="p">.</span><span class="n">running</span><span class="p">;</span>
+        <span class="n">waiting</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">cur</span><span class="o">-&gt;</span><span class="n">tagInGeneralList</span><span class="p">));</span>  <span class="c1">//放入对尾</span>
+        <span class="n">cur</span><span class="o">-&gt;</span><span class="n">status</span> <span class="o">=</span> <span class="n">ProgramStatus</span><span class="o">::</span><span class="n">BLOCKED</span><span class="p">;</span>
+
+        <span class="n">semLock</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+        <span class="n">programManager</span><span class="p">.</span><span class="n">schedule</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre><span class="kt">void</span> <span class="n">Semaphore</span><span class="o">::</span><span class="n">V</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">semLock</span><span class="p">.</span><span class="n">lock</span><span class="p">();</span>
+    <span class="o">++</span><span class="n">counter</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">waiting</span><span class="p">.</span><span class="n">size</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="n">PCB</span> <span class="o">*</span><span class="n">program</span> <span class="o">=</span> <span class="n">ListItem2PCB</span><span class="p">(</span><span class="n">waiting</span><span class="p">.</span><span class="n">front</span><span class="p">(),</span> <span class="n">tagInGeneralList</span><span class="p">);</span>
+        <span class="n">waiting</span><span class="p">.</span><span class="n">pop_front</span><span class="p">();</span>
+        <span class="n">semLock</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+        <span class="n">programManager</span><span class="p">.</span><span class="n">MESA_WakeUp</span><span class="p">(</span><span class="n">program</span><span class="p">);</span>  <span class="c1">//唤醒阻塞进程</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="n">semLock</span><span class="p">.</span><span class="n">unlock</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="实验结果-1">实验结果：</h4>
+
+<p><img src="..\img\in-post\image-20240516132347418.png" alt="image-20240516132347418" /></p>
+
+<h4 id="子任务2-自实现锁机制-1">子任务2-自实现锁机制</h4>
+
+<p>​	实验6教程中使用了原⼦指令 xchg 来实现自旋锁。但这种方法并不是唯一的。例如，x86指 令中提供了另外⼀个原子指令 bts 和 lock 前缀等，这些指令也可以用来实现锁机制。现在，同学 们需要结合自己所学的知识，实现⼀个与指导书实现方式不同的锁机制。最后，尝试用你实现的 锁机制解决“消失的芝士汉堡”问题，保存结果截图并说说你的总体思路。</p>
+
+<h4 id="代码修改">代码修改</h4>
+
+<p>​	实际上，key和bolt不是交换的关系，是bolt若为0，则线程可以打开锁进入执行区域；同时key总是为1，否则就不会进入循环遇到交换的汇编函数；于是代码逻辑为：<strong>使用lock前缀的bts指令，判断内存中的值是否为1，如果为1则CF设置为1,并将内存中的值设置为1</strong>，<strong>否则cf为0</strong>.  同时将cf的值存入key，那么若bolt为0，则key为0，bolt改为1，实现了互斥的功能。</p>
+
+<pre><code class="language-assembly">; void asm_atomic_exchange(uint32 *register, uint32 *memeory); 检测memeor
+asm_atomic_exchange:
+    push ebp
+    mov ebp, esp
+    pushad
+
+    xor eax, eax
+    mov ebx, [ebp + 4 * 3] ; memory
+    ;使用lock前缀的bts指令，判断内存中的值是否为0，如果为0则CF设置为1,并将内存中的值设置为1
+    lock bts [ebx], 0
+    ;把cf的值存入eax
+    setc al
+    ;将eax的值存入ebx指向的内存中
+    mov ebx, [ebp + 4 * 2] ; memory
+    mov [ebx], eax         ; 
+
+    popad
+    pop ebp
+    ret
+</code></pre>
+
+<h4 id="实验结果-2">实验结果：</h4>
+
+<p>​	类似之前的结果</p>
+
+<p><img src="..\img\in-post\image-20240516141632815.png" alt="image-20240516141632815" /></p>
+
+<h3 id="--实验任务2-">————————- <strong>实验任务2</strong>————————-</h3>
+
+<h4 id="任务要求-1">任务要求：</h4>
+
+<p><img src="..\img\in-post\image-20240516204714590.png" alt="image-20240516204714590" /></p>
+
+<h4 id="子任务1">子任务1</h4>
+
+<p>子任务1中，要求不使用任何实现同步/互斥的工具。因此，不同的线程之间可能会产生竞
+争/冲突，从而无法达到预期的运行结果。请同学们将线程竞争导致错误的场景呈现出来，保存
+相应的截图，并描述发生错误的场景。（提示：可通过输出共享变量的值进行观察）</p>
+
+<h5 id="思路分析-2">思路分析：</h5>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+</pre></td><td class="rouge-code"><pre><span class="cm">/*
+	如果不使用互斥手段来处理，当其中一个线程贪婪地抢夺不属于自己的资源，容易导致死锁
+	. But, if either of them does wake up and consume a resource, that will prevent the third thread from begin able to smoke and thus also prevent the agent from waking up to deliver additional resources. If this happens, the system is deadlocked; no thread will be able to make further progress.
+	--from https://github.com/YuanjieZhao/Cigarette-Smokers-Problem
+*/</span>
+<span class="kt">void</span> <span class="nf">producer</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>   
+    <span class="kt">int</span> <span class="n">rand</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="c1">//static const int choices[3] = {TOBACCO|MATCH, PAPER|TOBACCO, MATCH|PAPER};</span>
+    <span class="c1">//static const int matching[3] = {PAPER, TOBACCO, MATCH};</span>
+    <span class="k">while</span><span class="p">(</span><span class="mi">1</span><span class="p">){</span>
+        <span class="c1">//printf("producer thread running!\n");</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">SIGNAL</span><span class="p">){</span>
+        <span class="kt">int</span> <span class="n">rand</span> <span class="o">=</span> <span class="p">(</span><span class="n">rand</span> <span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span> <span class="mi">3</span><span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">rand</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+            <span class="n">TOBACCO_NUM</span><span class="o">++</span><span class="p">;</span>
+            <span class="n">MATCH_NUM</span><span class="o">++</span><span class="p">;</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"offer material for smoker_have_paper %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">rand</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+        <span class="p">}</span><span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">rand</span> <span class="o">==</span> <span class="mi">1</span><span class="p">){</span>
+            <span class="n">PAPER_NUM</span><span class="o">++</span><span class="p">;</span>
+            <span class="n">TOBACCO_NUM</span><span class="o">++</span><span class="p">;</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"offer material for smoker_have_match%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">rand</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="n">MATCH_NUM</span><span class="o">++</span><span class="p">;</span>
+            <span class="n">PAPER_NUM</span><span class="o">++</span><span class="p">;</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"offer material for smoker_have_tobacco %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">rand</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">SIGNAL</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+    
+<span class="p">}</span>
+<span class="kt">void</span> <span class="nf">smoker1</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>   
+    <span class="kt">bool</span> <span class="n">TOBACCO_FLAG</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">MATCH_FLAG</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="mi">1</span><span class="p">){</span>
+        <span class="c1">//printf("smoker1 thread running!\n");</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">TOBACCO_NUM</span><span class="p">){</span>
+            <span class="n">TOBACCO_NUM</span><span class="o">--</span><span class="p">;</span>
+            <span class="n">TOBACCO_FLAG</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"smoker_have_paper: GET TOBACCO!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">MATCH_NUM</span><span class="p">){</span>
+            <span class="n">MATCH_NUM</span><span class="o">--</span><span class="p">;</span>
+            <span class="n">MATCH_FLAG</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"smoker_have_paper: GET MATCH!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">TOBACCO_FLAG</span> <span class="o">&amp;&amp;</span> <span class="n">MATCH_FLAG</span><span class="p">){</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"smoker_have_paper: I am smoking!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+            <span class="n">SIGNAL</span><span class="o">++</span><span class="p">;</span>
+            <span class="c1">//printf("waiting for producer!\n");</span>
+            <span class="n">TOBACCO_FLAG</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+            <span class="n">MATCH_FLAG</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>如果每个抽烟者一见到有自己所需要的资源就获得该资源，而不是凑齐了才上的话，就会出现竞争与死锁。</p>
+
+<h5 id="实验结果-3">实验结果</h5>
+
+<p>​	如图，在结尾处，两个线程分别获得一个资源，造成死锁</p>
+
+<p><img src="..\img\in-post\image-20240516231751805.png" alt="image-20240516231751805" /></p>
+
+<h4 id="子任务2">子任务2：</h4>
+
+<p>​	针对你选择的问题场景，简单描述该问题中各个线程间的互斥关系，并使用信号量机制实现 线程的同步。说说你的实现方法，并保存能够证明你成功实现线程同步的结果截图。</p>
+
+<p>供应者与三个抽烟者分别是同步关系。由于抽烟者无法同时满足两个或以上的抽烟者，三个抽烟者对抽烟这个动作互斥（或由三个抽烟者轮流抽烟得知）</p>
+
+<p><img src="..\img\in-post\image-20240516214012257.png" alt="image-20240516214012257" /></p>
+
+<h4 id="思路和代码分析">思路和代码分析</h4>
+
+<p>​	使用4个信号量来实现这个同步问题，其中三个是为了抽烟者设定，一个是为了供应商设定。</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+</pre></td><td class="rouge-code"><pre>
+<span class="n">Semaphore</span> <span class="n">SMOKER_MATCH</span><span class="p">;</span>
+<span class="n">Semaphore</span> <span class="n">SMOKER_PAPER</span><span class="p">;</span>
+<span class="n">Semaphore</span> <span class="n">SMOKER_TOBACCO</span><span class="p">;</span>
+<span class="n">Semaphore</span> <span class="n">AGENT</span><span class="p">;</span>  <span class="c1">//供应商的信号量，会被初始化为1，表示可以开始放物资</span>
+
+
+<span class="kt">void</span> <span class="nf">producer</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>   
+    <span class="n">AGENT</span><span class="p">.</span><span class="n">initialize</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="c1">// 1 means the agent is available</span>
+    <span class="kt">int</span> <span class="n">rand</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="mi">1</span><span class="p">){</span>
+        <span class="c1">//printf("producer thread running!\n");</span>
+        <span class="n">AGENT</span><span class="p">.</span><span class="n">P</span><span class="p">();</span> 
+        <span class="kt">int</span> <span class="n">rand</span> <span class="o">=</span> <span class="p">(</span><span class="n">rand</span> <span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span> <span class="mi">3</span><span class="p">;</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"offer material %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">rand</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">rand</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+            <span class="n">SMOKER_MATCH</span><span class="p">.</span><span class="n">V</span><span class="p">();</span><span class="c1">//smoker1</span>
+        <span class="p">}</span><span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">rand</span> <span class="o">==</span> <span class="mi">1</span><span class="p">){</span>
+            <span class="n">SMOKER_PAPER</span><span class="p">.</span><span class="n">V</span><span class="p">();</span><span class="c1">//smoker2</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="n">SMOKER_TOBACCO</span><span class="p">.</span><span class="n">V</span><span class="p">();</span><span class="c1">//smoker3</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+    
+
+<span class="kt">void</span> <span class="nf">smoker1</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">while</span><span class="p">(</span><span class="mi">1</span><span class="p">){</span>
+        <span class="n">SMOKER_MATCH</span><span class="p">.</span><span class="n">P</span><span class="p">();</span> <span class="c1">//smoker1</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"smoker1: I am smoking!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">AGENT</span><span class="p">.</span><span class="n">V</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">smoker2</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">while</span><span class="p">(</span><span class="mi">1</span><span class="p">){</span>
+        <span class="c1">//printf("smoker2 thread running!\n");</span>
+        <span class="n">SMOKER_PAPER</span><span class="p">.</span><span class="n">P</span><span class="p">();</span> <span class="c1">//smoker2 </span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"smoker2: I am smoking!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">AGENT</span><span class="p">.</span><span class="n">V</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">smoker3</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">while</span><span class="p">(</span><span class="mi">1</span><span class="p">){</span>
+        <span class="c1">//printf("smoker3 thread running!\n");</span>
+        <span class="n">SMOKER_TOBACCO</span><span class="p">.</span><span class="n">P</span><span class="p">();</span> <span class="c1">//smoker3</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"smoker3: I am smoking!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">AGENT</span><span class="p">.</span><span class="n">V</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="成果展示">成果展示：</h4>
+
+<p>​	可以看到抽烟和供应的循环可以一直继续下去。</p>
+
+<p><img src="..\img\in-post\image-20240516231156854.png" alt="image-20240516231156854" /></p>
+
+<h3 id="--实验任务3-">————————- 实验任务3————————-</h3>
+
+<h4 id="子任务1-1">子任务1：</h4>
+
+<p>子任务1-简单解决方法 
+同学们需要在实验6教程的代码环境下，创建多个线程来模拟哲学家就餐的场景。然后，同
+学们需要结合信号量来实现理论教材（参见《操作系统概念》中文第9版187页）中给出的关于哲
+学家就餐的简单解决办法。最后，保存结果截图并说说你是怎么做的。
+注意：</p>
+
+<p>可以通过输出不同哲学家的状态信息，验证你使用教程的方法确实能解决哲学家就餐问题。</p>
+
+<p>请将你的学号的后四位包含在其中一个哲学家线程的输出信息中，用作结果截图的个人信息
+表征</p>
+
+<h5 id="代码分析-1">代码分析</h5>
+
+<p>​	根据教科书，可以使用5个信号量来表示5根筷子。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+</pre></td><td class="rouge-code"><pre><span class="n">Semaphore</span> <span class="n">CH1</span><span class="p">;</span>  <span class="c1">//5个筷子信号量，将会被初始化为1</span>
+<span class="n">Semaphore</span> <span class="n">CH2</span><span class="p">;</span>
+<span class="n">Semaphore</span> <span class="n">CH3</span><span class="p">;</span>
+<span class="n">Semaphore</span> <span class="n">CH4</span><span class="p">;</span>
+<span class="n">Semaphore</span> <span class="n">CH5</span><span class="p">;</span>
+
+
+
+<span class="c1">//模拟5个哲学家，5根筷子吃饭问题,使用5个信号量对应5根筷子，可能会发生死锁</span>
+<span class="kt">void</span> <span class="nf">PH1</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>   
+    <span class="kt">int</span> <span class="n">time</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">CH1</span><span class="p">.</span><span class="n">P</span><span class="p">();</span>
+        <span class="n">CH2</span><span class="p">.</span><span class="n">P</span><span class="p">();</span>
+        <span class="kt">int</span> <span class="n">wait</span> <span class="o">=</span> <span class="mh">0x0fffffff</span><span class="p">;</span>  <span class="c1">//吃饭时间</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"22336173_LHJ is eating: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">++</span><span class="n">time</span><span class="p">);</span>  <span class="c1">//输出个人id</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">wait</span><span class="o">--</span><span class="p">)</span>
+            <span class="p">;</span>
+        <span class="n">CH1</span><span class="p">.</span><span class="n">V</span><span class="p">();</span>
+        <span class="n">CH2</span><span class="p">.</span><span class="n">V</span><span class="p">();</span>
+        <span class="n">wait</span> <span class="o">=</span> <span class="mh">0x0ffffff</span><span class="p">;</span>  <span class="c1">//思考时间</span>
+        <span class="c1">//printf("22336173_LHJ is thinking\n");</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">wait</span><span class="o">--</span><span class="p">)</span>
+            <span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">PH2</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>   
+    <span class="kt">int</span> <span class="n">time</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">CH2</span><span class="p">.</span><span class="n">P</span><span class="p">();</span>
+        <span class="n">CH3</span><span class="p">.</span><span class="n">P</span><span class="p">();</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"PH2 is eating: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">++</span><span class="n">time</span><span class="p">);</span>
+        <span class="kt">int</span> <span class="n">wait</span> <span class="o">=</span> <span class="mh">0x0fffffff</span><span class="p">;</span>
+         <span class="k">while</span> <span class="p">(</span><span class="n">wait</span><span class="o">--</span><span class="p">)</span>
+            <span class="p">;</span>
+        <span class="n">CH2</span><span class="p">.</span><span class="n">V</span><span class="p">();</span>
+        <span class="n">CH3</span><span class="p">.</span><span class="n">V</span><span class="p">();</span>
+        <span class="c1">//printf("PH2 is thinking\n");</span>
+        <span class="n">wait</span> <span class="o">=</span> <span class="mh">0x0fffffff</span><span class="p">;</span>
+         <span class="k">while</span> <span class="p">(</span><span class="n">wait</span><span class="o">--</span><span class="p">)</span>
+            <span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h5 id="结果展示">结果展示：</h5>
+
+<p>在这里我的学号表示第一个哲学家，最后的数字表示吃饭的次数。可以看到基本上所有哲学家都可以吃到事物，但是第一个拿起筷子的哲学家可能会<strong>吃更多次</strong>，最后稳定在其他人的两倍</p>
+
+<p><img src="C:\Users\rogers\Pictures\Screenshots\屏幕截图 2024-05-17 125909.png" alt="屏幕截图 2024-05-17 125909" /></p>
+
+<p>过了一段时间：</p>
+
+<p><img src="..\img\in-post\image-20240517130214976.png" alt="image-20240517130214976" /></p>
+
+<h4 id="子任务2-死锁应对策略选做">子任务2-死锁应对策略（选做）</h4>
+
+<p>子任务1的解决方案保证两个相邻的哲学家不能同时进食，但是这种方案可能导致死锁。请 同学们描述子任务1解决方法中会导致死锁的场景，并将其复现出来。
+进一步地，请同学们在下 述4种策略中选择1种，解决子任务1中的死锁问题，并在代码中实现。最后，保存结果截图并说 说你是怎么做的。</p>
+
+<ul>
+  <li>策略1：利用抽屉原理（鸽笼原理）。即允许最多4个哲学家同时做在桌子上，保证至少有1 位哲学家能够吃到面。</li>
+  <li>策略2：利用AND信号量机制或信号量保护机制。仅当哲学家的左右两支筷子都可用时，才 允许他拿起筷子就餐（或者说哲学家必须在临界区内拿起两根筷子）。</li>
+  <li>策略3：使用非对称的解决方案。即规定奇数号的哲学家先拿起他左边的筷子，然后再去拿 起他右边的筷子；而偶数号的哲学家则先拿起他右边的筷子，然后再去拿他左边的筷子。</li>
+  <li>策略4：基于管程的解决方法。参加《操作系统概念》中文第9版190-191页，采用类似策略 2的思路，定义管程来控制筷子的分布，控制哲学家拿起筷子和放下筷子的顺序，确保两个 相邻的哲学家不会同时就餐。</li>
+</ul>
+
+<h5 id="死锁模拟">死锁模拟</h5>
+
+<p>死锁情况：每一个哲学家同时拿起左边的筷子，这时筷子没有剩余，产生循环等待，造成死锁。</p>
+
+<p>代码分析：</p>
+
+<p>​	在时间片轮转调度模拟进程切换比较困难，在这里拿起左边筷子就等待来模拟切换，最终导致循环等待产生死锁，每个哲学家手里都有一个筷子。</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre></td><td class="rouge-code"><pre><span class="c1">//模拟5个哲学家，5根筷子吃饭问题,使用5个信号量对应5根筷子，可能会发生死锁</span>
+<span class="kt">void</span> <span class="nf">PH1</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>   
+    <span class="kt">int</span> <span class="n">time</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">CH1</span><span class="p">.</span><span class="n">P</span><span class="p">();</span>
+        <span class="kt">int</span> <span class="n">wait</span> <span class="o">=</span> <span class="mh">0x0fffffff</span><span class="p">;</span>  <span class="c1">//拿起左边筷子等待，当进程切换后，会发现右边筷子被别人拿走了，</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">wait</span><span class="o">--</span><span class="p">)</span>
+            <span class="p">;</span>
+        <span class="n">CH2</span><span class="p">.</span><span class="n">P</span><span class="p">();</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"22336173_LHJ is eating: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">++</span><span class="n">time</span><span class="p">);</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">wait</span><span class="o">--</span><span class="p">)</span>
+            <span class="p">;</span>
+        <span class="n">CH1</span><span class="p">.</span><span class="n">V</span><span class="p">();</span>
+        <span class="n">CH2</span><span class="p">.</span><span class="n">V</span><span class="p">();</span>
+        <span class="n">wait</span> <span class="o">=</span> <span class="mh">0x0ffffff</span><span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">wait</span><span class="o">--</span><span class="p">)</span>
+            <span class="p">;</span>
+        <span class="c1">//printf("22336173_LHJ is thinking\n");</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h6 id="结果展示-1">结果展示：</h6>
+
+<p>​	可以看到没有人能吃饭</p>
+
+<p><img src="..\img\in-post\image-20240517131146544.png" alt="image-20240517131146544" /></p>
+
+<p>​	进入调试，发现，在拿起左筷子进入循环后，会产生时间片用完导致的进程切换，最终发生死锁。</p>
+
+<p><img src="..\img\in-post\image-20240517131608918.png" alt="image-20240517131608918" /></p>
+
+<h5 id="死锁解决策略">死锁解决策略</h5>
+
+<h6 id="思路和代码分析-1">思路和代码分析：</h6>
+
+<p>使用鸽笼原理，限制拿起筷子的只有4个人，保证不会产生循环等待：</p>
+
+<p>具体地，可以使用一个EATING_NUM的信号量，初始化为4，来表示只能同时4个人拿筷子；</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+</pre></td><td class="rouge-code"><pre><span class="c1">//使用鸽笼原理解决哲学家吃饭问题，避免产生死锁</span>
+
+<span class="n">Semaphore</span> <span class="n">EATING_NUM</span><span class="p">;</span>
+<span class="n">EATING_NUM</span><span class="p">.</span><span class="n">initialize</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span> <span class="c1">//最多只能有4个哲学家同时吃饭</span>
+
+<span class="c1">//模拟5个哲学家，5根筷子吃饭问题,使用5个信号量对应5根筷子</span>
+<span class="kt">void</span> <span class="nf">PH1</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>   
+    <span class="kt">int</span> <span class="n">time</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">{</span>   
+        <span class="n">EATING_NUM</span><span class="p">.</span><span class="n">P</span><span class="p">();</span>
+        <span class="n">CH1</span><span class="p">.</span><span class="n">P</span><span class="p">();</span>
+        <span class="kt">int</span> <span class="n">wait</span> <span class="o">=</span> <span class="mh">0x0fffffff</span><span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">wait</span><span class="o">--</span><span class="p">)</span>
+            <span class="p">;</span>
+        <span class="n">CH2</span><span class="p">.</span><span class="n">P</span><span class="p">();</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"22336173_LHJ is eating: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">++</span><span class="n">time</span><span class="p">);</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">wait</span><span class="o">--</span><span class="p">)</span>
+            <span class="p">;</span>
+        <span class="n">CH1</span><span class="p">.</span><span class="n">V</span><span class="p">();</span>
+        <span class="n">CH2</span><span class="p">.</span><span class="n">V</span><span class="p">();</span>
+        <span class="n">EATING_NUM</span><span class="p">.</span><span class="n">V</span><span class="p">();</span>
+        <span class="n">wait</span> <span class="o">=</span> <span class="mh">0x0ffffff</span><span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">wait</span><span class="o">--</span><span class="p">)</span>
+            <span class="p">;</span>
+        <span class="c1">//printf("22336173_LHJ is thinking\n");</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h6 id="结果展示-2">结果展示：</h6>
+
+<p><img src="..\img\in-post\image-20240517132623378.png" alt="image-20240517132623378" /></p>
+
+
+                    
+                    <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img
+                            alt="Creative Commons License"
+                            style="border-width:0;max-width: 40%;margin-left: 0px;margin-bottom: 5px;"
+                            src="/img/icons/cc_byncsa.flat.guokr.svg" /></a><text style="font-size: 14px">本作品采用<a
+                            rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享署名-非商业性使用-相同方式共享
+                            4.0
+                            国际许可协议</a>进行许可。<br />This work is licensed under a <a rel="license"
+                            href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons
+                            Attribution-NonCommercial-ShareAlike 4.0 International License</a>.</text><br />
+                    
+
+                    <hr style="visibility: hidden;">
+                    <ul class="pager">
+                        
+                        <li class="previous">
+                            <a href="/2024-05-13-OS-lab5/"
+                                data-toggle="tooltip" data-placement="top" title="OS lab5 实现printf的可变参数机制和内核线程">
+                                Previous<br>
+                                <span>OS lab5 实现printf的可变参数机制和内核线程</span>
+                            </a>
+                        </li>
+                        
+                        
+                        <li class="next">
+                            <a href="/2024-06-04-OS-lab7/"
+                                data-toggle="tooltip" data-placement="top" title="OS lab7 实现虚拟内存的内存管理">
+                                Next<br>
+                                <span>OS lab7 实现虚拟内存的内存管理</span>
+                            </a>
+                        </li>
+                        
+                    </ul>
+                    <hr style="visibility: hidden;">
+
+                    <!--Gitalk评论start  -->
+                    
+                    <!-- Gitalk end -->
+
+                    
+
+                    
+                </div>
+
+                <!-- Side Catalog Container -->
+                
+                <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                    <div class="side-catalog">
+                        <hr class="hidden-sm hidden-xs">
+                        <h5>
+                            <a class="catalog-toggle" href="#">CATALOG</a>
+                        </h5>
+                        <ul class="catalog-body"></ul>
+                    </div>
+                </div>
+                
+
+                <!-- Sidebar Container -->
+                <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+                    <!-- DONE: FRIEND has a link to the last tag -->
+
+                    <!-- Featured Tags -->
+                    
+
+
+<section>
+    
+        <hr class="hidden-sm hidden-xs">
+    
+    <h5><a href="/archive/">FEATURED TAGS</a></h5>
+    <div class="tags">
+        
+        
+        
+        
+        
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=OS"
+                    title="OS"
+                    rel="7">OS</a>
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=HPC"
+                    title="HPC"
+                    rel="7">HPC</a>
+    </div>
+</section>
+
+
+                    <!-- Friends Blog -->
+                    
+                </div>
+            </div>
+        </div>
+</article>
+
+<!-- add support for mathjax by voleking-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    TeX: {
+      equationNumbers: {
+        autoNumber: "AMS"
+      }
+    },
+    SVG: {
+      scale: 90
+    },
+    tex2jax: {
+      inlineMath: [ ['$','$'] ],
+      displayMath: [ ['$$','$$'], ['\\[','\\]'], ['\\(','\\)'] ],
+      processEscapes: true,
+    }
+  });
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG">
+</script>
+
+
+<!-- CleverYh -->
+
+<!-- End CleverYh -->
+
+
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+        var d = document, t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js", function () {
+        anchors.options = {
+            visible: 'hover',
+            placement: 'right',
+            // icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link {
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top: -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- SNS Link -->
+                
+
+
+<ul class="list-inline text-center">
+    
+
+        
+        
+        
+        
+        <li>
+            <a target="_blank" title="Github" href="https://github.com/luohj29">
+                <!-- <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                </span> -->
+                <span class="fa-stack fa-lg">
+                    <i class="fa-brands fa-github-alt fa-stack-1x"></i>
+                </span>
+            </a>
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        
+    </ul>
+
+                <p class="copyright text-muted">
+                    <text style="opacity: 1; color: #007799;">&copy; 2019 - 2025 <a
+                            href="https://luohj29.github.io/">RogersLuo's Blog</a>
+                    </text><br>
+                    <span style="opacity: 0.78; color: #007799;font-family: 'CamingoCodeRegular';">
+                        <!-- Default Statcounter code for lzzmm
+                    https://lzzmm.github.io -->
+                        <script type="text/javascript">
+                            var sc_project = 12680417;
+                            var sc_invisible = 0;
+                            var sc_security = "74b5722d";
+                            var sc_text = 2;
+                            var scJsHost = "https://";
+                            document.write("<script type='text/javascript' src='" +
+                                scJsHost +
+                                "statcounter.com/counter/counter.js'></" + "script>");
+                        </script>
+                        <!-- <noscript>
+                        <div class="statcounter"><a title="Web Analytics" href="https://statcounter.com/" target="_blank"><img
+                                    class="statcounter" src="https://c.statcounter.com/12680417/0/74b5722d/0/" alt="Web Analytics"
+                                    referrerPolicy="no-referrer-when-downgrade"></a></div>
+                        </noscript> -->
+                        <!-- End of Statcounter Code -->
+                        <span> visits | </span>
+                        <span>Uptime:</span><span id="display_live_time"></span>
+                        <script>function blog_live_time() {
+                                window.setTimeout(blog_live_time, 1000);
+                                const start = new Date('2020-02-16T14:37:00');
+                                const now = new Date();
+                                const timeDiff = (now.getTime() - start.getTime());
+                                const msPerMinute = 60 * 1000;
+                                const msPerHour = 60 * msPerMinute;
+                                const msPerDay = 24 * msPerHour;
+                                const passDay = Math.floor(timeDiff / msPerDay);
+                                const passHour = Math.floor((timeDiff % msPerDay) / 60 / 60 / 1000);
+                                const passMinute = Math.floor((timeDiff % msPerHour) / 60 / 1000);
+                                const passSecond = Math.floor((timeDiff % msPerMinute) / 1000);
+                                display_live_time.innerHTML = " " + passDay + "d " + passHour + "h " + passMinute + "m " + passSecond + "s ";
+                            }
+                            blog_live_time();
+                        </script>
+                    </span><br>
+                    <text style="opacity: 0.66; color: #0099bb;">Powered by <a
+                            href="https://github.com/luohj29/luohj29.github.io"
+                            target="_blank">luohj29.github.io</a> |
+                        <iframe style="margin-left: 2px; margin-right: -20px; margin-bottom:-5px; opacity: 0.55;"
+                            frameborder="0" scrolling="0" width="100px" height="20px"
+                            src="https://ghbtns.com/github-btn.html?user=luohj29&repo=luohj29.github.io&type=star&count=true">
+                        </iframe></text><br>
+                    <text style="opacity: 0.6; font-size: 13px;">Improved from the theme by <a
+                            href="http://huangxuan.me/" target="_blank">Hux Blog</a></text>
+                    <!-- </text> -->
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src=" /js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<!-- Currently, only navbar scroll-down effect at desktop still depends on this -->
+<script src=" /js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src=" /js/hux-blog.min.js "></script>
+
+<!-- Service Worker -->
+
+<script src=" /js/snackbar.js "></script>
+<script src=" /js/sw-registration.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+        var d = document, t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+
+
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function () {
+        var $nav = document.querySelector("nav");
+        if ($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog(selector) {
+
+        // interop with multilangual 
+        if ('' == 'true') {
+            _containerSelector = 'div.post-container.active'
+        } else {
+            _containerSelector = 'div.post-container'
+        }
+
+        // init
+        var P = $(_containerSelector), a, n, t, l, i, c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+
+        // clean
+        $(selector).html('')
+
+        // appending
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#" + $(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="' + i + '" rel="nofollow">' + t + '</a>');
+            l = $('<li class="' + n + '_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function (e) {
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+<!-- Multi-Lingual -->
+
+
+
+    <!-- Image to hack wechat -->
+    <img src="/img/icon_wechat.png" width="0" height="0" />
+    <!-- Migrate from head to bottom, no longer block render and still work -->
+</body>
+
+</html>

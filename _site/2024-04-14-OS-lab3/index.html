@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Rogers | learning in cs and math">
+    <meta name="keywords" content="Rogers, luohj29, blog, cs, math, sysu,ML,Photography">
+    <meta name="theme-color" content="#000000">
+
+    <!-- Open Graph -->
+    
+    <meta property="og:title"
+                content="OS lab3 保护模式 - RogersLuo">
+    
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="
+">
+    
+    <meta property="article:published_time" content=" 2024-04-14T00:00:00Z">
+    
+    
+    
+    <meta property="article:tag" content="OS">
+    
+    
+    <meta property="og:image" content="http://localhost:4000/img/Rogers.png">
+    <meta property="og:url" content="http://localhost:4000/2024-04-14-OS-lab3/">
+    <meta property="og:site_name" content="RogersLuo">
+
+    <title>OS lab3 保护模式 - RogersLuo</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="http://localhost:4000/2024-04-14-OS-lab3/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href=" /css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href=" /css/hux-blog.min.css">
+
+    
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"
+        type="text/css">
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+
+    <!-- diffBackground -->
+    <script type="text/javascript">
+        function diffBackground() {
+            datetoday = new Date();
+            timenow = datetoday.getTime();
+            datetoday.setTime(timenow);
+            thehour = datetoday.getHours();
+            if (thehour >= 15 && thehour < 18)
+                display = "img/index-bg.jpg";
+            else if (thehour >= 18 && thehour < 21)
+                display = "img/index-bg-night.jpg";
+            else if (thehour >= 21 && thehour < 24)
+                display = "img/home-bg-star_track.jpg";
+            else if (thehour >= 0 && thehour < 3)
+                display = "img/home-bg-star_track.jpg";
+            else if (thehour >= 3 && thehour < 6)
+                display = "img/index-bg-night.jpg";
+            else if (thehour >= 6 && thehour < 12)
+                display = "img/index-bg.jpg";
+            else if (thehour >= 12 && thehour < 15)
+                display = "img/index-bg.jpg";
+            else
+                display = "img/index-bg.jpg";
+
+            var css = '<style type="text/css">';
+            css += 'header.intro-header{background-image: url(\'/' + display + '\');}';
+            css += '</style>';
+            document.write(css);
+        }
+    </script>
+
+</head>
+
+<!-- hack iOS CSS :active style -->
+
+<body ontouchstart="">
+
+    <!-- Navigation -->
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/blog">RogersLuo's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    <li>
+                        <a href="/blog">Blog</a>
+                    </li>
+                    <li>
+                        <a href="/archive">Archive</a>
+                    </li>
+                    <!-- 
+                    
+                    
+                    
+                    
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    
+                    
+                    <li>
+                        <a href="/archive/">Archive</a>
+                    </li>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                     -->
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/index-bg.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+
+
+
+
+
+    
+    <style type="text/css">
+        header.intro-header{
+            position: relative;
+            background-image: url('/img/index-bg.jpg');
+            background: ;
+        }
+
+        
+    </style>
+    
+    
+        
+    <header class="intro-header" >
+        
+    
+    <div class="header-mask"></div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/archive/?tag=OS" title="OS">OS</a>
+                        
+                    </div>
+                    <h1 >OS lab3 保护模式</h1>
+                    
+                    <h2 class="subheading" ></h2>
+                    <span class="meta">Posted by RogersLuo's Blog on April 14, 2024</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+
+
+<!-- Post Content -->
+<article>
+    
+        <div class="container">
+            
+            <div class="row">
+
+                <!-- Post Container -->
+                <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                    <!-- Multi-Lingual -->
+                    
+
+                    <p><img src="..\img\in-post\image-20240412203853545.png" alt="image-20240412203853545" /></p>
+
+<p>​</p>
+
+<h1 id="本科生实验报告">本科生实验报告</h1>
+
+<p>实验课程: 操作系统原理实验</p>
+
+<p>任课教师: 刘宁</p>
+
+<p>实验题目:保护模式</p>
+
+<p>专业名称: 计算机科学与技术</p>
+
+<p>学生姓名:罗弘杰</p>
+
+<p>学生学号: 22336173</p>
+
+<p>实验地点: 实验中心D503</p>
+
+<p>实验时间: 2024/4/12</p>
+
+<p>实验资料：<a href="https://gitee.com/nelsoncheung/sysu-2023-spring-operating-system/tree/main/lab3#课后思考题">lab3 · NelsonCheung/SYSU-2023-Spring-Operating-System - 码云 - 开源中国 (gitee.com)</a></p>
+
+<h2 id="实验要求">实验要求</h2>
+
+<p>​	学习从LBA和C/H/S的磁盘寻址方式，以及使用IO和中断实现的磁盘读取</p>
+
+<p>​	学习进入保护模式的方式</p>
+
+<p>​	学习gdb调试源码级程序</p>
+
+<h2 id="实验任务">实验任务</h2>
+
+<p>​	复现example1, 说说怎么做并截图</p>
+
+<p>​	在example1的基础上将LBA28的寻址方式改为CHS，同时给出逻辑扇区号向CHS的转换公式</p>
+
+<p>​	利用gdb进行实验资料例子2的debug分析</p>
+
+<h2 id="实验过程">实验过程</h2>
+
+<h3 id="任务一">任务一</h3>
+
+<p>​	在实验资料的基础上编写Mbr和bootloader.asm，mbr负责加载bootloader，bootloader的任务是打印字符。</p>
+
+<p>​	我的理解是：操作系统为了性能需求，启动时只会自动加载512B的MBR, 其余磁盘操作由MBR内容管理和控制</p>
+
+<p>​	过程：</p>
+
+<p><img src="..\img\in-post\image-20240412204552002.png" alt="image-20240412204552002" /></p>
+
+<p>​	编写bootloader.asm和mbr.asm两个文件，然后编译为可执行文件</p>
+
+<p>写入到虚拟机的磁盘上，mbr.asm写的位置时0号扇区，数量为1，bootloader为扇区1，数量为5.</p>
+
+<p>​	然后使用QEMU命令启动虚拟机</p>
+
+<p><img src="..\img\in-post\image-20240412204810631.png" alt="image-20240412204810631" /></p>
+
+<h3 id="任务二">任务二</h3>
+
+<p><img src="https://img-blog.csdnimg.cn/0c0cf76058b9463093ae6e95dca34cf5.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASmFuZS56aG9uZw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="img" />	<img src="https://img-blog.csdnimg.cn/ffedc881ba2845c4924c750b769c4d33.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASmFuZS56aG9uZw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="img" /></p>
+
+<p>​	先复习磁盘工作原理：</p>
+
+<p>磁盘空间
+\(Space = c *s *h *512(扇区容量)\)
+先确定柱面，在柱面上确定磁头，在磁头确定的磁道上找到扇区</p>
+
+<p><strong>编号差异：LBA规则的扇区编号从0开始，但是C/H/S的编号从1开始，从CHS到LBA转换要-1.</strong></p>
+
+<p><strong>CHS-&gt;LBA</strong>
+\(LBA = (c*HPC+h)*SPT+s-1\)
+HPC是每个柱面的磁头数目，SPT是每个磁道上的扇区总数</p>
+
+<p><strong>由此可推出反变换公式：</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+</pre></td><td class="rouge-code"><pre><span class="n">C</span> <span class="o">=</span> <span class="n">LBA</span> <span class="o">//</span><span class="p">(</span><span class="n">HPC</span> <span class="o">*</span> <span class="n">SPT</span><span class="p">)</span> <span class="c1">#注意是整除
+</span><span class="n">H</span> <span class="o">=</span> <span class="p">[(</span><span class="n">LBA</span> <span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="n">每磁道扇区总数SPT</span><span class="p">]</span><span class="n">mod</span> <span class="n">HPC</span>
+<span class="n">S</span> <span class="o">=</span> <span class="p">(</span><span class="n">LBA</span> <span class="o">+</span><span class="mi">1</span><span class="err">）</span><span class="o">%</span> <span class="n">每磁道扇区总数SPT</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>​	在例一中， 读取的LBA从1-5，HPC为18， SPT为63，所以柱面是0，磁道也是0， S从1递增到6；并根据中断读取的参数要求重新编写mbr_chs.asm,编译以后在qemu上运行</p>
+
+<pre><code class="language-assembly">mov ax, 2                ; 物理扇区第2位
+load_bootloader:
+    call asm_read_hard_disk  ; 读取硬盘
+    inc ax
+    cmp ax, 5
+    jle load_bootloader
+jmp 0x0000:0x7e00        ; 跳转到bootloader
+
+jmp $ ; 死循环
+
+asm_read_hard_disk:                           
+; 从硬盘读取一个逻辑扇区
+
+; 参数列表
+; ax=起始扇区号
+
+; 返回值
+; bx=bx+512
+; ax=ax+1
+    mov dl, 80h
+    mov dh, 0; 磁头号
+    mov ch, 0; 柱面号
+    mov cl, al; 扇区号
+
+
+    mov ah, 2; 功能号
+    mov al, 1; 扇区数
+    int 13h; 调用int 13h中断
+
+    add bx, 512; bx=bx+512, 读取下一个扇区
+    ret
+</code></pre>
+
+<p>​	在这里逻辑扇区和物理扇区编号的差异是要注意的细节（逻辑从0开始，物理从1开始），然后按照任务1的方式，再编译并写入磁盘，启动qemu</p>
+
+<p><img src="..\img\in-post\image-20240412211222013.png" alt="image-20240412211222013" /></p>
+
+<p>​	实现相同的功能。</p>
+
+<h3 id="任务三">任务三</h3>
+
+<p>​	复现实验资料中进入保护模式的程序，然后使用gdb调试。</p>
+
+<p>​	首先编写boot.inc的头文件</p>
+
+<pre><code class="language-assembly">; 常量定义区
+; _____________Loader_____________
+; 加载器扇区数
+LOADER_SECTOR_COUNT equ 5
+; 加载器起始扇区
+LOADER_START_SECTOR equ 1
+; 加载器被加载地址
+LOADER_START_ADDRESS equ 0x7e00
+; _____________GDT_____________
+; GDT起始位置
+GDT_START_ADDRESS equ 0x8800  ; gdt表的起始位置
+</code></pre>
+
+<p>​	然后重新编写bootloader.asm，在输出字符后进入保护模式</p>
+
+<p><img src="..\img\in-post\image-20240414233134488.png" alt="image-20240414233134488" /></p>
+
+<pre><code class="language-assembly">%include "boot.inc"
+[bits 16]
+mov ax, 0xb800 ;显存段地址
+mov gs, ax
+mov ah, 0x03 ;青色
+mov ecx, bootloader_tag_end - bootloader_tag
+xor ebx, ebx
+mov esi, bootloader_tag
+output_bootloader_tag:
+    mov al, [esi]
+    mov word[gs:bx], ax
+    inc esi
+    add ebx,2
+    loop output_bootloader_tag
+
+;空描述符
+mov dword [GDT_START_ADDRESS+0x00],0x00
+mov dword [GDT_START_ADDRESS+0x04],0x00  
+
+;创建描述符，这是一个数据段，对应0~4GB的线性地址空间
+mov dword [GDT_START_ADDRESS+0x08],0x0000ffff    ; 基地址为0，段界限为0xFFFF
+mov dword [GDT_START_ADDRESS+0x0c],0x00cf9200    ; 粒度为4KB，存储器段描述符 
+
+;建立保护模式下的堆栈段描述符      
+mov dword [GDT_START_ADDRESS+0x10],0x00000000    ; 基地址为0x00000000，界限0x0 
+mov dword [GDT_START_ADDRESS+0x14],0x00409600    ; 粒度为1个字节
+
+;建立保护模式下的显存描述符   
+mov dword [GDT_START_ADDRESS+0x18],0x80007fff    ; 基地址为0x000B8000，界限0x07FF
+mov dword [GDT_START_ADDRESS+0x1c],0x0040920b    ; 粒度为字节
+
+;创建保护模式下平坦模式代码段描述符
+mov dword [GDT_START_ADDRESS+0x20],0x0000ffff    ; 基地址为0，段界限为0xFFFF
+mov dword [GDT_START_ADDRESS+0x24],0x00cf9800    ; 粒度为4kb，代码段描述符 
+
+
+;初始化描述符表寄存器GDTR
+mov word [pgdt], 39      ;描述符表的界限   
+lgdt [pgdt]
+
+; _____________Selector_____________
+;平坦模式数据段选择子
+DATA_SELECTOR equ 0x8
+;平坦模式栈段选择子
+STACK_SELECTOR equ 0x10
+;平坦模式视频段选择子
+VIDEO_SELECTOR equ 0x18
+VIDEO_NUM equ 0x18
+;平坦模式代码段选择子
+CODE_SELECTOR equ 0x20
+
+in al,0x92                         ;南桥芯片内的端口 
+or al,0000_0010B
+out 0x92,al                        ;打开A20
+
+cli                                ;禁用中断
+mov eax,cr0
+or eax,1
+mov cr0,eax                        ;设置PE位
+
+jmp dword CODE_SELECTOR:protect_mode_begin
+
+;16位的描述符选择子：32位偏移
+;清流水线并串行化处理器
+[bits 32]           
+protect_mode_begin:                              
+
+mov eax, DATA_SELECTOR                     ;加载数据段(0..4GB)选择子
+mov ds, eax
+mov es, eax
+mov eax, STACK_SELECTOR
+mov ss, eax
+mov eax, VIDEO_SELECTOR
+mov gs, eax
+
+mov ecx, protect_mode_tag_end - protect_mode_tag
+mov ebx, 80 * 2
+mov esi, protect_mode_tag
+mov ah, 0x3
+output_protect_mode_tag:
+    mov al, [esi]
+    mov word[gs:ebx], ax
+    add ebx, 2
+    inc esi
+    loop output_protect_mode_tag
+
+jmp $ ; 死循环
+
+pgdt dw 0    ; pgdt 将占据48位，前16位为界限，在这里是39，后32位是起始地址
+    dd GDT_START_ADDRESS
+
+bootloader_tag db 'bootloader'
+bootloader_tag_end:
+
+protect_mode_tag db 'enter protect mode'
+protect_mode_tag_end:
+</code></pre>
+
+<p>​	代码分析：</p>
+
+<p>进入保护模式需要4个过程：</p>
+
+<ol>
+  <li>
+    <p><strong>准备GDT，用lgdt指令加载GDTR信息</strong>。</p>
+  </li>
+  <li>
+    <p><strong>打开第21根地址线</strong>。//扩大内存访问空间是保护模式的出现背景</p>
+  </li>
+  <li>
+    <p><strong>开启cr0的保护模式标志位</strong>。</p>
+  </li>
+  <li>
+    <p><strong>远跳转，进入保护模式</strong>。</p>
+
+    <p>怎么做：</p>
+
+    <ol>
+      <li>
+        <p>GDTR是一个x86架构专用寄存器，是48位存储全局描述符表的寄存器，在这里我们先把GDT信息存储在内存中，然后使用lgdt指令加载到该寄存器，修改全局描述符表信息。</p>
+
+        <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+</pre></td><td class="rouge-code"><pre>mov word [pgdt], 39      ;描述符表的界限   
+lgdt [pgdt]
+</pre></td></tr></tbody></table></code></pre></div>        </div>
+      </li>
+      <li>
+        <p>南桥芯片0x92端口的第二位控制第二十条地址线的开关，将其置为1就能打开第二十条地址线；</p>
+
+        <p>使用与方法可以将其置为一</p>
+
+        <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+</pre></td><td class="rouge-code"><pre>in al,0x92                         ;南桥芯片内的端口 
+or al,0000_0010B					；将第二位置为1
+out 0x92,al                        ;打开A20
+</pre></td></tr></tbody></table></code></pre></div>        </div>
+      </li>
+      <li>
+        <p>cr0是专用寄存器，将其最低位（protection enable）置为1，就可以启用保护模式。</p>
+
+        <p>禁用中断保证当前代码执行</p>
+
+        <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+</pre></td><td class="rouge-code"><pre>cli                                ;禁用中断
+mov eax,cr0
+or eax,1
+mov cr0,eax                        ;设置PE位
+</pre></td></tr></tbody></table></code></pre></div>        </div>
+      </li>
+      <li>
+        <p><code class="language-plaintext highlighter-rouge">jmp dword CODE_SELECTOR:protect_mode_begin</code> 用于执行跳转到指定代码段的指定地址，进入保护模式下的代码执行。</p>
+
+        <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre>jmp dword CODE_SELECTOR:protect_mode_begin
+       
+;16位的描述符选择子：32位偏移
+;清流水线并串行化处理器
+[bits 32]           
+protect_mode_begin:                              
+       
+mov eax, DATA_SELECTOR                     ;加载数据段(0..4GB)选择子
+mov ds, eax
+mov es, eax
+mov eax, STACK_SELECTOR
+mov ss, eax
+mov eax, VIDEO_SELECTOR
+mov gs, eax
+</pre></td></tr></tbody></table></code></pre></div>        </div>
+      </li>
+    </ol>
+  </li>
+</ol>
+
+<p>编写MBR.asm</p>
+
+<p>​	与之前的相似，更改了硬盘读取函数的传参方式</p>
+
+<p>gdb调试：</p>
+
+<p>​	调用qemu后，没有显示内容</p>
+
+<p><img src="C:\Users\rogers\Pictures\Screenshots\屏幕截图 2024-04-14 112440.png" alt="屏幕截图 2024-04-14 112440" /></p>
+
+<p><strong>断点1：准备GDT，用lgdt指令加载GDTR信息。</strong></p>
+
+<p>​	根据实验资料；<img src="..\img\in-post\image-20240414180146319.png" alt="image-20240414180146319" /></p>
+
+<p>​	通过调试，先获取PGDT在内存的位置，然后查看里面的内容，确认是39</p>
+
+<p><img src="C:\Users\rogers\Pictures\Screenshots\屏幕截图 2024-04-14 173858.png" alt="image-20240414151554751" /><img src="C:\Users\rogers\Pictures\Screenshots\屏幕截图 2024-04-14 174000.png" alt="屏幕截图 2024-04-14 174000" /></p>
+
+<p><strong>断点2：打开第21根地址线。</strong></p>
+
+<p>​	怎么打开：参照以下资料将0x92第二位置为1<img src="..\img\in-post\image-20240414181746933.png" alt="image-20240414181746933" /></p>
+
+<p><strong><img src="..\img\in-post\image-20240414180537838.png" alt="image-20240414180537838" /></strong></p>
+
+<p><img src="C:\Users\rogers\Pictures\Screenshots\屏幕截图 2024-04-14 175732.png" alt="屏幕截图 2024-04-14 175732" /></p>
+
+<p><strong>断点3：开启cr0的保护模式标志位。</strong></p>
+
+<p><img src="..\img\in-post\image-20240414180657188.png" alt="image-20240414180657188" /></p>
+
+<p>​	修改前是16，修改后是17，16和17相比只有最后一位不一样，17说明进入保护模式了</p>
+
+<p><img src="C:\Users\rogers\Pictures\Screenshots\屏幕截图 2024-04-14 174248.png" alt="屏幕截图 2024-04-14 174248" /></p>
+
+<p>​</p>
+
+<p><strong>断点4：远跳转，进入保护模式。</strong></p>
+
+<p><img src="..\img\in-post\image-20240414182107580.png" alt="image-20240414182107580" /></p>
+
+<p>此时，jmp指令将<code class="language-plaintext highlighter-rouge">CODE_SELECTOR</code>送入cs，将<code class="language-plaintext highlighter-rouge">protect_mode_begin + LOADER_START_ADDRESS</code>送入eip，进入保护模式。然后我们将选择子放入对应的段寄存器。<img src="..\img\in-post\image-20240414180819922.png" alt="image-20240414180819922" /></p>
+
+<p>​	可以查看跳转到保护模式时各个寄存器的状态</p>
+
+<p><img src="..\img\in-post\image-20240414175914702.png" alt="image-20240414175914702" /></p>
+
+
+
+                    
+                    <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img
+                            alt="Creative Commons License"
+                            style="border-width:0;max-width: 40%;margin-left: 0px;margin-bottom: 5px;"
+                            src="/img/icons/cc_byncsa.flat.guokr.svg" /></a><text style="font-size: 14px">本作品采用<a
+                            rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享署名-非商业性使用-相同方式共享
+                            4.0
+                            国际许可协议</a>进行许可。<br />This work is licensed under a <a rel="license"
+                            href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons
+                            Attribution-NonCommercial-ShareAlike 4.0 International License</a>.</text><br />
+                    
+
+                    <hr style="visibility: hidden;">
+                    <ul class="pager">
+                        
+                        <li class="previous">
+                            <a href="/2024-03-25-OS-lab2-assm/"
+                                data-toggle="tooltip" data-placement="top" title="OS lab2 熟悉x86汇编和操作系统内核">
+                                Previous<br>
+                                <span>OS lab2 熟悉x86汇编和操作系统内核</span>
+                            </a>
+                        </li>
+                        
+                        
+                        <li class="next">
+                            <a href="/2024-04-19-OS-lab4/"
+                                data-toggle="tooltip" data-placement="top" title="OS lab4 保护模式以及中断">
+                                Next<br>
+                                <span>OS lab4 保护模式以及中断</span>
+                            </a>
+                        </li>
+                        
+                    </ul>
+                    <hr style="visibility: hidden;">
+
+                    <!--Gitalk评论start  -->
+                    
+                    <!-- Gitalk end -->
+
+                    
+
+                    
+                </div>
+
+                <!-- Side Catalog Container -->
+                
+                <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                    <div class="side-catalog">
+                        <hr class="hidden-sm hidden-xs">
+                        <h5>
+                            <a class="catalog-toggle" href="#">CATALOG</a>
+                        </h5>
+                        <ul class="catalog-body"></ul>
+                    </div>
+                </div>
+                
+
+                <!-- Sidebar Container -->
+                <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+                    <!-- DONE: FRIEND has a link to the last tag -->
+
+                    <!-- Featured Tags -->
+                    
+
+
+<section>
+    
+        <hr class="hidden-sm hidden-xs">
+    
+    <h5><a href="/archive/">FEATURED TAGS</a></h5>
+    <div class="tags">
+        
+        
+        
+        
+        
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=OS"
+                    title="OS"
+                    rel="7">OS</a>
+        
+                <a data-sort="0009" 
+                    href="/archive/?tag=HPC"
+                    title="HPC"
+                    rel="7">HPC</a>
+    </div>
+</section>
+
+
+                    <!-- Friends Blog -->
+                    
+                </div>
+            </div>
+        </div>
+</article>
+
+<!-- add support for mathjax by voleking-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    TeX: {
+      equationNumbers: {
+        autoNumber: "AMS"
+      }
+    },
+    SVG: {
+      scale: 90
+    },
+    tex2jax: {
+      inlineMath: [ ['$','$'] ],
+      displayMath: [ ['$$','$$'], ['\\[','\\]'], ['\\(','\\)'] ],
+      processEscapes: true,
+    }
+  });
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG">
+</script>
+
+
+<!-- CleverYh -->
+
+<!-- End CleverYh -->
+
+
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+        var d = document, t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js", function () {
+        anchors.options = {
+            visible: 'hover',
+            placement: 'right',
+            // icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link {
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top: -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- SNS Link -->
+                
+
+
+<ul class="list-inline text-center">
+    
+
+        
+        
+        
+        
+        <li>
+            <a target="_blank" title="Github" href="https://github.com/luohj29">
+                <!-- <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                </span> -->
+                <span class="fa-stack fa-lg">
+                    <i class="fa-brands fa-github-alt fa-stack-1x"></i>
+                </span>
+            </a>
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        
+    </ul>
+
+                <p class="copyright text-muted">
+                    <text style="opacity: 1; color: #007799;">&copy; 2019 - 2025 <a
+                            href="https://luohj29.github.io/">RogersLuo's Blog</a>
+                    </text><br>
+                    <span style="opacity: 0.78; color: #007799;font-family: 'CamingoCodeRegular';">
+                        <!-- Default Statcounter code for lzzmm
+                    https://lzzmm.github.io -->
+                        <script type="text/javascript">
+                            var sc_project = 12680417;
+                            var sc_invisible = 0;
+                            var sc_security = "74b5722d";
+                            var sc_text = 2;
+                            var scJsHost = "https://";
+                            document.write("<script type='text/javascript' src='" +
+                                scJsHost +
+                                "statcounter.com/counter/counter.js'></" + "script>");
+                        </script>
+                        <!-- <noscript>
+                        <div class="statcounter"><a title="Web Analytics" href="https://statcounter.com/" target="_blank"><img
+                                    class="statcounter" src="https://c.statcounter.com/12680417/0/74b5722d/0/" alt="Web Analytics"
+                                    referrerPolicy="no-referrer-when-downgrade"></a></div>
+                        </noscript> -->
+                        <!-- End of Statcounter Code -->
+                        <span> visits | </span>
+                        <span>Uptime:</span><span id="display_live_time"></span>
+                        <script>function blog_live_time() {
+                                window.setTimeout(blog_live_time, 1000);
+                                const start = new Date('2020-02-16T14:37:00');
+                                const now = new Date();
+                                const timeDiff = (now.getTime() - start.getTime());
+                                const msPerMinute = 60 * 1000;
+                                const msPerHour = 60 * msPerMinute;
+                                const msPerDay = 24 * msPerHour;
+                                const passDay = Math.floor(timeDiff / msPerDay);
+                                const passHour = Math.floor((timeDiff % msPerDay) / 60 / 60 / 1000);
+                                const passMinute = Math.floor((timeDiff % msPerHour) / 60 / 1000);
+                                const passSecond = Math.floor((timeDiff % msPerMinute) / 1000);
+                                display_live_time.innerHTML = " " + passDay + "d " + passHour + "h " + passMinute + "m " + passSecond + "s ";
+                            }
+                            blog_live_time();
+                        </script>
+                    </span><br>
+                    <text style="opacity: 0.66; color: #0099bb;">Powered by <a
+                            href="https://github.com/luohj29/luohj29.github.io"
+                            target="_blank">luohj29.github.io</a> |
+                        <iframe style="margin-left: 2px; margin-right: -20px; margin-bottom:-5px; opacity: 0.55;"
+                            frameborder="0" scrolling="0" width="100px" height="20px"
+                            src="https://ghbtns.com/github-btn.html?user=luohj29&repo=luohj29.github.io&type=star&count=true">
+                        </iframe></text><br>
+                    <text style="opacity: 0.6; font-size: 13px;">Improved from the theme by <a
+                            href="http://huangxuan.me/" target="_blank">Hux Blog</a></text>
+                    <!-- </text> -->
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src=" /js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<!-- Currently, only navbar scroll-down effect at desktop still depends on this -->
+<script src=" /js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src=" /js/hux-blog.min.js "></script>
+
+<!-- Service Worker -->
+
+<script src=" /js/snackbar.js "></script>
+<script src=" /js/sw-registration.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+        var d = document, t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+
+
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function () {
+        var $nav = document.querySelector("nav");
+        if ($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog(selector) {
+
+        // interop with multilangual 
+        if ('' == 'true') {
+            _containerSelector = 'div.post-container.active'
+        } else {
+            _containerSelector = 'div.post-container'
+        }
+
+        // init
+        var P = $(_containerSelector), a, n, t, l, i, c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+
+        // clean
+        $(selector).html('')
+
+        // appending
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#" + $(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="' + i + '" rel="nofollow">' + t + '</a>');
+            l = $('<li class="' + n + '_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function (e) {
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+<!-- Multi-Lingual -->
+
+
+
+    <!-- Image to hack wechat -->
+    <img src="/img/icon_wechat.png" width="0" height="0" />
+    <!-- Migrate from head to bottom, no longer block render and still work -->
+</body>
+
+</html>
